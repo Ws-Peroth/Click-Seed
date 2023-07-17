@@ -7,49 +7,33 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
-    public enum GrowupType
-    {
-        Seed,
-        Sprout,
-        Blooming,
-        Flower
-    }
-    public enum CurrencyTypes
-    {
-        Crystal,
-        CrystalFragment
-    }
-    public bool isPlanted;
-    public int potClickCount;
-    public int[] currencyData = new int[2] { 0, 0 };
-    public readonly int[] PotGrowupCount = new int[]
-    {
-        10,
-        20,
-        30,
-        40
-    };
+    // 서버에서의 로직을 처리하도록 하고 싶은데...
+    // [DataManager <--> GameManager] <===> Client Scripts
 
-    public void potClicked(Action<GrowupType> growUpAction )
-    {
+    public void PotClicked(Action<DataManager.GrowupType> growUpAction )
+    {   
+        var growing = DataManager.Instance.GetMstData().growing;
+        var isPlanted = !(growing == null || string.IsNullOrEmpty(growing.name));
+
         if (!isPlanted)
         {
+            // plant가 없는 경우에는 무시
             return;
         }
-        potClickCount++;
-        for(int i = PotGrowupCount.Length -1; i >= 0; i--)
+        DataManager.Instance.GetMstData().growing.count++;
+        for(int i = DataManager.Instance.PotGrowupCount.Length -1; i >= 0; i--)
         {
-            if(potClickCount == PotGrowupCount[i])
+            if(DataManager.Instance.GetMstData().growing.count == DataManager.Instance.PotGrowupCount[i])
             {
-                growUpAction((GrowupType)i);
+                growUpAction((DataManager.GrowupType)i);
             }
         }
     }
 
     // Start is called before the first frame update
-    void Start()
+    public void LoadFirstScene()
     {
-
+        SceneManagerEx.Instance.LoadScene((SceneManagerEx.Scenes)1);
     }
 
     // Update is called once per frame

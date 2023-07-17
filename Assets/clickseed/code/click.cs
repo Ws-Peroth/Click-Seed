@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class click : MonoBehaviour
 {
     public int count;
-    public GameObject gameObject;
+    public GameObject gameObject0;
     public GameObject gameObject1;
     public GameObject gameObject2;
     public GameObject gameObject3;
@@ -15,7 +15,7 @@ public class click : MonoBehaviour
     public Text counterText;
     private void Start()
     {
-        gameObject.SetActive(true);
+        gameObject0.SetActive(true);
         glove.SetActive(false);
         count = 0;
 
@@ -36,7 +36,7 @@ public class click : MonoBehaviour
         }
 
         if (count == 5) {
-            gameObject.SetActive(false);
+            gameObject0.SetActive(false);
             gameObject1.SetActive(true);
         }
         if (count == 10)

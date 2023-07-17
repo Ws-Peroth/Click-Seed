@@ -6,9 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/clickseed/scenes/Pot.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
+    path: Assets/Scene/Init.unity
+    guid: 2646d91b5ae20ad4ea09ecd437f941d1
   - enabled: 1
-    path: Assets/clickseed/scenes/shelf.unity
-    guid: 32bc35cab06054ac68986a4fe82e9296
+    path: Assets/Scene/Title.unity
+    guid: 9a8bd197a88f33447a7500338eba2cc6
+  - enabled: 1
+    path: Assets/Scene/Main.unity
+    guid: cf7b405551870df469d506d60964494f
   m_configObjects: {}
