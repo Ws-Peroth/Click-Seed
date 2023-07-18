@@ -172,7 +172,7 @@ public class DataManager : Singleton<DataManager>
                 new ProductData ("Elixer2", "Plant Supplements",new int[]{ 10, 1000 }),
                 new ProductData ("Elixer3", "Sprite Helper",    new int[]{ 10, 1000 }),
             };
-            DefaultData growing = null;
+            DefaultData growing = new DefaultData("", "", 0);
             var quest = new List<QuestData> {
             };
             var shelf = new string[] {
@@ -190,6 +190,7 @@ public class DataManager : Singleton<DataManager>
                 elixerShop: elixerShop
                 );
             JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
+            MstData = JsonManager.Instance.LoadJsonData<JsonData>(Path.Combine(Application.persistentDataPath, "mstData.json"));
         }
 
         var data = JsonManager.Instance.ReadJson(Path.Combine(Application.persistentDataPath, "mstData.json"));
@@ -198,7 +199,7 @@ public class DataManager : Singleton<DataManager>
     }
     public void SaveMstData()
     {
-        var json = JsonUtility.ToJson(MstData);
+        JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
         // System.IO.File.WriteAllText(Path.Combine(Application.persistentDataPath, "file.txt"), jsonTextFile);
     }
 }
