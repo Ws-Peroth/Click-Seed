@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 9145b40e97ae1450f84038277a1d6cef
+guid: 717dbbca973dc4355bf4fac4bcb9b3cf
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -47,7 +47,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 40
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -117,13 +117,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shelf2_0
+      name: greenhousebg_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 43
-        height: 50
+        width: 256
+        height: 144
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -131,20 +131,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1d54bf6d619424eaba7b57bd8d367509
-      internalID: 21246860
+      spriteID: 7b7b42e0523e14ab48981fdf6ef98e1b
+      internalID: 1497726604
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shelf2_1
+      name: greenhousebg_1
       rect:
         serializedVersion: 2
-        x: 212
+        x: 256
         y: 0
-        width: 44
-        height: 49
+        width: 256
+        height: 144
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -152,8 +152,50 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: e5787a665d7d843489663e61267741b9
-      internalID: -409644095
+      spriteID: 938ab4f79d6b54d6289a4278627eed69
+      internalID: 1281424016
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: greenhousebg_2
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 0
+        width: 256
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7b7c9f60110cc4a83bb9409fe05222b2
+      internalID: -1245188701
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: greenhousebg_3
+      rect:
+        serializedVersion: 2
+        x: 768
+        y: 0
+        width: 256
+        height: 144
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f14710e8abc954c76beb910f97b4ab37
+      internalID: -843495490
       vertices: []
       indices: 
       edges: []
@@ -169,8 +211,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      shelf2_0: 21246860
-      shelf2_1: -409644095
+      greenhousebg_1: 1281424016
+      greenhousebg_3: -843495490
+      greenhousebg_0: 1497726604
+      greenhousebg_2: -1245188701
   spritePackingTag: 
   pSDRemoveMatte: 0
   pSDShowRemoveMatteOption: 0
