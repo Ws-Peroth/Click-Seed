@@ -19,13 +19,15 @@ public class InventoryPopup : Popup
     public class InventoryData
     {
         public string name;
+        public string id;
         public Sprite image;
         public InventoryType inventoryType;
         public int count;
 
-        public InventoryData(string name, Sprite image, InventoryType inventoryType, int count)
+        public InventoryData(string name, string id, Sprite image, InventoryType inventoryType, int count)
         {
             this.name = name;
+            this.id = id;
             this.image = image;
             this.inventoryType = inventoryType;
             this.count = count;

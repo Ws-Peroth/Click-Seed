@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
+#region DATA_DEFINED
+
 [Serializable]
 public class DefaultData{
     public string id;
@@ -38,13 +40,15 @@ public class QuestData
 {
     public string npcId;
     public string npcName;
-    public int questId;
+    public string questId;
+    public int questReward;
 
-    public QuestData(string npcId, string npcName, int questId)
+    public QuestData(string npcId, string npcName, string questId, int questReward)
     {
         this.npcId = npcId;
         this.npcName = npcName;
         this.questId = questId;
+        this.questReward = questReward;
     }
 }
 
@@ -83,6 +87,7 @@ public class JsonData
         this.shelf = shelf;
     }
 }
+#endregion
 
 public class DataManager : Singleton<DataManager>
 {
@@ -137,9 +142,9 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("currency2", "Lunar Shard ", 0),
             };
             var elixer = new List<DefaultData> {
-                new DefaultData ("Elixer1", "Plant Aid", 0),
-                new DefaultData ("Elixer2", "Plant Supplements", 0),
-                new DefaultData ("Elixer3", "Sprite Helper", 0),
+                new DefaultData ("Elixir1", "Plant Aid", 0),
+                new DefaultData ("Elixir2", "Plant Supplements", 0),
+                new DefaultData ("Elixir3", "Sprite Helper", 0),
             };
             var inventory = new List<DefaultData> {
                 new DefaultData ("Seed1", "Slime Seed", 0),
@@ -153,8 +158,8 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Seed9", "Lettuce Flower Seed", 0),
             }; 
             var shopList = new List<DefaultData> {
-                new DefaultData ("ElixirIcon", "Elixer Shop", 0),
-                new DefaultData ("smallpot", "Seed Shop", 0),
+                new DefaultData ("ShopIconElixir", "Elixer Shop", 0),
+                new DefaultData ("ShopIconSeed", "Seed Shop", 0),
             };
             var seedShop = new List<ProductData> {
                 new ProductData ("Seed1", "Slime Seed",         new int[]{ 10, 1000}),
@@ -168,9 +173,9 @@ public class DataManager : Singleton<DataManager>
                 new ProductData ("Seed9", "Lettuce Flower Seed",new int[]{ 10, 1000}),
             };
             var elixerShop = new List<ProductData> {
-                new ProductData ("Elixer1", "Plant Aid",        new int[]{ 10, 1000}),
-                new ProductData ("Elixer2", "Plant Supplements",new int[]{ 10, 1000 }),
-                new ProductData ("Elixer3", "Sprite Helper",    new int[]{ 10, 1000 }),
+                new ProductData ("Elixir1", "Plant Aid",        new int[]{ 10, 1000}),
+                new ProductData ("Elixir2", "Plant Supplements",new int[]{ 10, 1000 }),
+                new ProductData ("Elixir3", "Sprite Helper",    new int[]{ 10, 1000 }),
             };
             DefaultData growing = new DefaultData("", "", 0);
             var quest = new List<QuestData> {

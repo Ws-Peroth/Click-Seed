@@ -24,8 +24,10 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     // 이벤트 수신을 위한 이벤트 키 값들
     private readonly string[] EventIds = new string[]
     {
-            "seedShop",
-            "elixirShop",
+        "ShopIconSeed",
+        "ShopIconElixir",
+        "Elixir",
+        "Seed",
     };
 
     // Start is called before the first frame update
@@ -55,7 +57,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 }
                 var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
                 inventoryData.Add(
-                    new InventoryPopup.InventoryData(data.name, sprite[0], InventoryPopup.InventoryType.Inventory, data.count)
+                    new InventoryPopup.InventoryData(data.name, data.id, sprite[0], InventoryPopup.InventoryType.Inventory, data.count)
                 );
             }
             popup.Init(inventoryData.ToArray());
@@ -77,7 +79,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 }
                 var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
                 inventoryData.Add(
-                    new InventoryPopup.InventoryData(data.name, sprite[0], InventoryPopup.InventoryType.Inventory, data.count)
+                    new InventoryPopup.InventoryData(data.name, data.id, sprite[0], InventoryPopup.InventoryType.Inventory, data.count)
                 );
             }
             popup.Init(inventoryData.ToArray());
@@ -98,7 +100,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
                 Debug.Log($"Is Sprite is NULL  : {sprite == null}");
                 inventoryData.Add(
-                    new InventoryPopup.InventoryData(data.name, sprite[0], InventoryPopup.InventoryType.ShopList, data.count)
+                    new InventoryPopup.InventoryData(data.name, data.id, sprite[0], InventoryPopup.InventoryType.ShopList, data.count)
                 );
             }
             popup.Init(inventoryData.ToArray());
@@ -114,7 +116,10 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             GameManager.Instance.PotClicked(GrowUp);
             clickCountText.text = DataManager.Instance.GetMstData().growing.count.ToString();
         });
+    }
 
+    private void OnEnable()
+    {
         // 이벤트 등록을 위해 이벤트 ID 등록
         if (this is IGlobalEventReceiver Interface)
         {
@@ -127,6 +132,8 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         // 해당 오브젝트의 파괴 이후에 해당 오브젝트에 대한 이벤트 호출 방지를 위해 이벤트 등록 해제
         if (this is IGlobalEventReceiver Interface)
         {
+            Debug.Log("OnDestroy: Unregist()");
+            Debug.Log($"Manager is null = {GlobalEventController.Instance == null}");
             Interface.Unregist(Interface, EventIds);
         }
     }
@@ -145,9 +152,35 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     }
 
-    public void ReceiveEvent(string EventId)
+    public void ReceiveEvent(string EventId, object[] param)
     {
-        throw new System.NotImplementedException();
+        string key = EventId;
+
+        foreach(var id in EventIds)
+        {
+            if (key.StartsWith(id))
+            {
+                key = id;
+            }
+        }
+
+        Debug.Log($"MainScene::Call: {key}");
+        if (key == "ShopIconElixir")
+        {
+           
+        }
+        else if (key == "ShopIconSeed")
+        {
+
+        }
+        else if (key == "Seed")
+        {
+
+        }
+        else if (key == "Elixir")
+        {
+
+        }
     }
 
     public object GetOriginObject()

@@ -27,11 +27,14 @@ public class InventoryCell : MonoBehaviour
         cellImage.sprite = data.image;
         UpdateCellCount(data.count);
 
+        var mstData = DataManager.Instance.GetMstData();
 
+        
 
         button.onClick.AddListener(() =>
         {
-            Debug.Log($"Click Cell : {data.name}");
+            Debug.Log($"Click Cell : {data.name} ({data.id})");
+            GlobalEventController.Instance.SendEvent(data.id, new object[]{ data });
         });
     }
 
