@@ -7,7 +7,8 @@ using UnityEngine;
 #region DATA_DEFINED
 
 [Serializable]
-public class DefaultData{
+public class DefaultData
+{
     public string id;
     public string name;
     public int count;
@@ -91,8 +92,8 @@ public class JsonData
 
 public class DataManager : Singleton<DataManager>
 {
-    // ¼­¹öÀÇ DB¿Í RPCÁ¤º¸ÀÇ Á¦°ø ¿ªÇÒ
-    // µ¥ÀÌÅÍ¸¦ JsonÀ¸·Î ÀúÀåÇÏ¸ç, °®°íÀÖ´Â µ¥ÀÌÅÍ¸¦ ÀÎ½ºÅÏ½º¸¦ ÅëÇØ ÁØ´Ù
+    // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ DBï¿½ï¿½ RPCï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ Jsonï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï¸ï¿½, ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Í¸ï¿½ ï¿½Î½ï¿½ï¿½Ï½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ø´ï¿½
 
 
     private JsonData MstData;
@@ -118,6 +119,7 @@ public class DataManager : Singleton<DataManager>
         30,
         40
     };
+
     public enum SeedType
     {
         SlimeSeed,
@@ -126,6 +128,7 @@ public class DataManager : Singleton<DataManager>
         MushroomSeed,
         TentacleSeed,
     }
+
 
     public void Start()
     {
