@@ -24,6 +24,15 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     // 이벤트 수신을 위한 이벤트 키 값들
     private readonly string[] EventIds = new string[]
     {
+        // "ShopIconSeed",
+        // "ShopIconElixir",
+        // "Elixir",
+        // "Seed",
+        "Selected",
+    };
+
+    private readonly string[] BtnNames = new string[]
+    {
         "ShopIconSeed",
         "ShopIconElixir",
         "Elixir",
@@ -152,34 +161,40 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     }
 
-    public void ReceiveEvent(string EventId, object[] param)
+    public void ReceiveEvent(string EventId, string name, object[] param)
     {
-        string key = EventId;
 
-        foreach(var id in EventIds)
+        if(EventId == "Selected")
         {
-            if (key.StartsWith(id))
+            string key = name;
+
+            foreach (var id in BtnNames)
             {
-                key = id;
+                if (key.StartsWith(id))
+                {
+                    key = id;
+                }
             }
-        }
 
-        Debug.Log($"MainScene::Call: {key}");
-        if (key == "ShopIconElixir")
-        {
-           
-        }
-        else if (key == "ShopIconSeed")
-        {
+            // Debug.Log($"MainScene::Call: {key}");
+            if (key == "ShopIconElixir")
+            {
 
-        }
-        else if (key == "Seed")
-        {
+            }
+            else if (key == "ShopIconSeed")
+            {
 
-        }
-        else if (key == "Elixir")
-        {
+            }
+            else if (key == "Seed")
+            {
 
+            }
+            else if (key == "Elixir")
+            {
+
+            }
+
+            Debug.Log($"MainScene::Call: {key}\nEventID = {EventId}\nName = {name}");
         }
     }
 

@@ -6,7 +6,7 @@ public class GlobalEventController : Singleton<GlobalEventController>
 {
     private Dictionary<string, List<object>> eventReceivers = new();
 
-    public void SendEvent(string key, object[] param = null)
+    public void SendEvent(string key, string name, object[] param = null)
     {
         if (eventReceivers.ContainsKey(key))
         {
@@ -15,7 +15,7 @@ public class GlobalEventController : Singleton<GlobalEventController>
             {
                 if (receiver is IGlobalEventReceiver Interface)
                 {
-                    Interface.ReceiveEvent(key, param);
+                    Interface.ReceiveEvent(key, name, param);
                 }
                 else
                 {

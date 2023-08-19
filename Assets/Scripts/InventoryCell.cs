@@ -29,12 +29,10 @@ public class InventoryCell : MonoBehaviour
 
         var mstData = DataManager.Instance.GetMstData();
 
-        
-
         button.onClick.AddListener(() =>
         {
             Debug.Log($"Click Cell : {data.name} ({data.id})");
-            GlobalEventController.Instance.SendEvent(data.id, new object[]{ data });
+            GlobalEventController.Instance.SendEvent("Selected", data.id, new object[]{ data });
         });
     }
 
