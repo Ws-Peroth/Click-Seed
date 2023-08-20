@@ -33,6 +33,23 @@ public class InventoryPopup : Popup
             this.count = count;
         }
     }
+    public class ShopData
+    {
+        public string name;
+        public string id;
+        public Sprite image;
+        public InventoryType inventoryType;
+        public int[] price;
+
+        public ShopData(string name, string id, Sprite image, InventoryType inventoryType, int[] price)
+        {
+            this.name = name;
+            this.id = id;
+            this.image = image;
+            this.inventoryType = inventoryType;
+            this.price = price;
+        }
+    }
     public void Init(InventoryData[] inventoryDatas)
     {
         foreach(var cell in cellList){
@@ -43,6 +60,22 @@ public class InventoryPopup : Popup
         {
             var newCell = Instantiate(cell, Vector2.zero, Quaternion.identity, content.transform).GetComponent<InventoryCell>();
             newCell.Init(inventoryDatas[i]);
+            newCell.gameObject.SetActive(true);
+            cellList.Add(newCell.gameObject);
+        }
+    }
+
+    public void Init(ShopData[] shopDatas)
+    {
+        foreach (var cell in cellList)
+        {
+            Destroy(cell);
+        }
+        cellList = new List<GameObject>();
+        for (int i = 0; i < shopDatas.Length; i++)
+        {
+            var newCell = Instantiate(cell, Vector2.zero, Quaternion.identity, content.transform).GetComponent<InventoryCell>();
+            newCell.Init(shopDatas[i]);
             newCell.gameObject.SetActive(true);
             cellList.Add(newCell.gameObject);
         }

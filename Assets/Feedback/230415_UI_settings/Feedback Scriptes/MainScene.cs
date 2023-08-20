@@ -164,7 +164,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     public void ReceiveEvent(string EventId, string name, object[] param)
     {
 
-        if(EventId == "Selected")
+        if (EventId == "Selected")
         {
             string key = name;
 
@@ -176,25 +176,51 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 }
             }
 
-            // Debug.Log($"MainScene::Call: {key}");
-            if (key == "ShopIconElixir")
+            if (key == "Elixir")
             {
-
-            }
-            else if (key == "ShopIconSeed")
-            {
-
+                // Shop에서 Elixir 선택시, Elixir 구매 절차
             }
             else if (key == "Seed")
             {
-
+                // Shop에서 Seed 선택시, Seed 구매 절차
             }
-            else if (key == "Elixir")
+            else if (key == "ShopIconSeed")
             {
+                popup.titleText.text = "Seed Inventory";
 
+                var inventoryData = new List<InventoryPopup.ShopData>();
+                for (int i = 0; i < DataManager.Instance.GetMstData().seedShop.Count; i++)
+                {
+                    var data = DataManager.Instance.GetMstData().seedShop[i];
+                    var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
+                    inventoryData.Add(
+                        new InventoryPopup.ShopData(
+                            data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
+                            )
+                    );
+                }
+                popup.Init(inventoryData.ToArray());
+                popup.gameObject.SetActive(true);
             }
+            else if (key == "ShopIconElixir")
+            {
+                // Shop에서 Elixir 선택시, Elixir 구매 절차
+                // popup.titleText.text = "Seed Inventory";
 
-            Debug.Log($"MainScene::Call: {key}\nEventID = {EventId}\nName = {name}");
+                var inventoryData = new List<InventoryPopup.ShopData>();
+                for (int i = 0; i < DataManager.Instance.GetMstData().elixerShop.Count; i++)
+                {
+                    var data = DataManager.Instance.GetMstData().elixerShop[i];
+                    var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
+                    inventoryData.Add(
+                        new InventoryPopup.ShopData(
+                            data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
+                            )
+                    );
+                }
+                popup.Init(inventoryData.ToArray());
+                popup.gameObject.SetActive(true);
+            }
         }
     }
 

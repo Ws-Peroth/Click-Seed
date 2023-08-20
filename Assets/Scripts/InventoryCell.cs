@@ -11,13 +11,14 @@ public class InventoryCell : MonoBehaviour
     public Image cellImage;
     public TextMeshProUGUI cellCountText;
     public InventoryPopup.InventoryType cellType;
-
+    public GameObject priceObjectGroup;
+    public TextMeshProUGUI crystalPriceText;
+    public TextMeshProUGUI fragmentPriceText;
 
 
     public Dictionary<InventoryPopup.InventoryType, string> preText = new()
     {
         { InventoryPopup.InventoryType.Inventory, "count : " },
-        { InventoryPopup.InventoryType.Shop, "price : " },
     };
 
     public void Init(InventoryPopup.InventoryData data)
@@ -26,6 +27,7 @@ public class InventoryCell : MonoBehaviour
         cellNameText.text = data.name;
         cellImage.sprite = data.image;
         UpdateCellCount(data.count);
+        priceObjectGroup.SetActive(false);
 
         var mstData = DataManager.Instance.GetMstData();
 
@@ -36,16 +38,50 @@ public class InventoryCell : MonoBehaviour
         });
     }
 
+    public void Init(InventoryPopup.ShopData data)
+    {
+        cellType = data.inventoryType;
+        cellNameText.text = data.name;
+        cellImage.sprite = data.image;
+        UpdateCellCount(data.price);
+        priceObjectGroup.SetActive(true);
+        var mstData = DataManager.Instance.GetMstData();
+
+        button.onClick.AddListener(() =>
+        {
+            Debug.Log($"Click Cell : {data.name} ({data.id})");
+            GlobalEventController.Instance.SendEvent("Selected", data.id, new object[] { data });
+        });
+    }
+
     public void UpdateCellCount(int count)
     {
         var isTypeFind = preText.ContainsKey(cellType);
+        cellCountText.text = "";
         if (isTypeFind)
         {
             cellCountText.text = $"{preText[cellType]}{count}";
         }
-        else
+        if(cellType == InventoryPopup.InventoryType.Shop)
         {
             cellCountText.text = "";
+            crystalPriceText.text = $"{count}";
+            fragmentPriceText.text = $"{count}";
+        }
+    }
+    public void UpdateCellCount(int[] count)
+    {
+        var isTypeFind = preText.ContainsKey(cellType);
+        cellCountText.text = "";
+        if (isTypeFind)
+        {
+            cellCountText.text = $"{preText[cellType]}{count}";
+        }
+        if (cellType == InventoryPopup.InventoryType.Shop)
+        {
+            cellCountText.text = "";
+            crystalPriceText.text = count[0].ToString();
+            fragmentPriceText.text = count[1].ToString();
         }
     }
 }

@@ -264,6 +264,9 @@ MonoBehaviour:
   cellImage: {fileID: 428301915}
   cellCountText: {fileID: 358134390}
   cellType: 0
+  priceObjectGroup: {fileID: 199594584}
+  crystalPriceText: {fileID: 1622642326}
+  fragmentPriceText: {fileID: 1426752763}
 --- !u!1 &101918819
 GameObject:
   m_ObjectHideFlags: 0
