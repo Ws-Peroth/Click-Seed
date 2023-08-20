@@ -98,6 +98,7 @@ public class DataManager : Singleton<DataManager>
 
     private JsonData MstData;
     public JsonData GetMstData() { return MstData; }
+    public const int FragmentToCrystalValue = 5000;
 
     public enum GrowupType
     {

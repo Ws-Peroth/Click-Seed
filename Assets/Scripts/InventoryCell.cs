@@ -49,8 +49,8 @@ public class InventoryCell : MonoBehaviour
 
         button.onClick.AddListener(() =>
         {
-            Debug.Log($"Click Cell : {data.name} ({data.id})");
-            GlobalEventController.Instance.SendEvent("Selected", data.id, new object[] { data });
+            Debug.Log($"Buy Cell : {data.name} ({data.id})");
+            GlobalEventController.Instance.SendEvent("BuyItem", data.id, new object[] { data });
         });
     }
 

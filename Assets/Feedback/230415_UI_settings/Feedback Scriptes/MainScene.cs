@@ -20,6 +20,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     [SerializeField] private Image seed;
 
     [SerializeField] private InventoryPopup popup;
+    [SerializeField] private ConfirmPopup confirmPopup;
 
     // 이벤트 수신을 위한 이벤트 키 값들
     private readonly string[] EventIds = new string[]
@@ -29,6 +30,8 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         // "Elixir",
         // "Seed",
         "Selected",
+        "BuyItem",
+        "Buy",
     };
 
     private readonly string[] BtnNames = new string[]
@@ -43,6 +46,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     private void Start()
     {
         popup.gameObject.SetActive(false);
+        confirmPopup.gameObject.SetActive(false);
         var isDataNull = DataManager.Instance.GetMstData().growing == null;
         var path = (isDataNull || string.IsNullOrEmpty(DataManager.Instance.GetMstData().growing.name)) ? "" : DataManager.Instance.GetMstData().growing.name;
         var plantSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(path);
@@ -163,8 +167,39 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     public void ReceiveEvent(string EventId, string name, object[] param)
     {
+        if (EventId == "BuyItem")
+        {
+            if (param == null || param.Length <= 0) { return; }
 
-        if (EventId == "Selected")
+            InventoryPopup.ShopData product = param[0] as InventoryPopup.ShopData;
+            var price = product.price;
+            var totalPrice = (ulong)(price[0] * DataManager.FragmentToCrystalValue + price[1]);
+            var amount = DataManager.Instance.GetMstData().currency;
+            var totalAmount = (ulong)amount[0].count * DataManager.FragmentToCrystalValue + (ulong)amount[1].count;
+
+            confirmPopup.gameObject.SetActive(true);
+            if (totalAmount < totalPrice)
+            {
+                // 구매불가 팝업
+                confirmPopup.Init(
+                    "Confirm", $"Insufficient resources to purchase {product.name }",
+                    () => { }, () => { },
+                    true, false
+                );
+                return;
+            }
+            // 구매 절차 팝업
+            confirmPopup.Init(
+                "Confirm", $"Purchase {product.name }",
+                () =>
+                {
+                        // OK Callback
+                        // var datas = param as InventoryPopup.ShopData[];
+                        GlobalEventController.Instance.SendEvent("Buy", name, param);
+                }
+            );
+        }
+        else if (EventId == "Selected")
         {
             string key = name;
 
@@ -175,16 +210,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                     key = id;
                 }
             }
-
-            if (key == "Elixir")
-            {
-                // Shop에서 Elixir 선택시, Elixir 구매 절차
-            }
-            else if (key == "Seed")
-            {
-                // Shop에서 Seed 선택시, Seed 구매 절차
-            }
-            else if (key == "ShopIconSeed")
+            if (key == "ShopIconSeed")
             {
                 popup.titleText.text = "Seed Inventory";
 
@@ -221,6 +247,13 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 popup.Init(inventoryData.ToArray());
                 popup.gameObject.SetActive(true);
             }
+        }
+        else if (EventId == "Buy")
+        {
+            var product = param[0] as InventoryPopup.ShopData;
+            // TODO: 1. GameManager에서 mstData의 "currency"와 "elixer" / "inventory" 데이터 부분을 수정하는 함수 작성
+            // TODO: 2. 작성한 함수 호출
+            Debug.Log($"{product.name}을(를) 구매하였습니다");
         }
     }
 
