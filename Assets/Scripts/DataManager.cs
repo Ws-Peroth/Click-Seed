@@ -99,7 +99,18 @@ public class DataManager : Singleton<DataManager>
     private JsonData MstData;
     public JsonData GetMstData() { return MstData; }
     public const int FragmentToCrystalValue = 5000;
-
+    public enum DataType
+    {
+        Currency,
+        Elixer,
+        Inventory,
+        ShopList,
+        SeedShop,
+        ElixerShop,
+        Quest,
+        Shelf,
+        Growing
+    }
     public enum GrowupType
     {
         Seed,
@@ -120,15 +131,6 @@ public class DataManager : Singleton<DataManager>
         30,
         40
     };
-
-    public enum SeedType
-    {
-        SlimeSeed,
-        CrystalSeed,
-        FloresentSeed,
-        MushroomSeed,
-        TentacleSeed,
-    }
 
 
     public void Start()
@@ -210,5 +212,147 @@ public class DataManager : Singleton<DataManager>
     {
         JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
         // System.IO.File.WriteAllText(Path.Combine(Application.persistentDataPath, "file.txt"), jsonTextFile);
+    }
+
+    public DefaultData GetDefaultData(DataType type, string id)
+    {
+        var targetItem = new DefaultData("", "", 0);
+
+        if (type == DataType.Inventory)
+        {
+            targetItem = GetMstData().inventory.Find((m) => m.id == id);
+        }
+        else if (type == DataType.Currency)
+        {
+            targetItem = GetMstData().currency.Find((m) => m.id == id);
+        }
+        else if (type == DataType.Elixer)
+        {
+            targetItem = GetMstData().elixer.Find((m) => m.id == id);
+        }
+        else if (type == DataType.ShopList)
+        {
+            targetItem = GetMstData().shopList.Find((m) => m.id == id);
+        }
+        else if (type == DataType.Growing)
+        {
+            targetItem = GetMstData().growing;
+        }
+        else
+        {
+            Debug.LogError($"Type Undefined: {type} is not defined in Default Data Types");
+            return null;
+        }
+
+        return targetItem;
+    }
+    public ProductData GetShopData(DataType type, string id)
+    {
+        var targetItem = new ProductData("", "", new[] { 0, 0 });
+
+        if (type == DataType.ElixerShop)
+        {
+            targetItem = GetMstData().elixerShop.Find((m) => m.id == id);
+        }
+        else if (type == DataType.SeedShop)
+        {
+            targetItem = GetMstData().seedShop.Find((m) => m.id == id);
+        }
+        else
+        {
+            Debug.LogError($"Type Undefined: {type} is not defined in Shop Data Types");
+            return null;
+        }
+
+        return targetItem;
+    }
+    private void AddDefaultDataValue(DataType type, string id, int count)
+    {
+        var targetItem = GetDefaultData(type, id);
+
+        if (targetItem == null)
+        {
+            Debug.LogError($"{type}에서 {id}을(를) 찾을 수 없습니다");
+            return;
+        }
+        SetDefaultDataValue(type, id, targetItem.count + count);
+    }
+    private void SetDefaultDataValue(DataType type, string id, int count)
+    {
+        var targetItem = GetDefaultData(type, id);
+
+        if (targetItem == null)
+        {
+            Debug.LogError($"{type}에서 {id}을(를) 찾을 수 없습니다");
+            return;
+        }
+        if (count < 0)
+        {
+            // Can't Use this Seed
+            Debug.LogError($"{type}의 개수는 0 미만이 될 수 없습니다.");
+            return;
+        }
+        targetItem.count = count;
+        SaveMstData();
+    }
+
+    public void ChangeSeedCount(string id, int count)
+    {
+        AddDefaultDataValue(DataType.Inventory, id, count);
+    }
+    public void SetSeedCount(string id, int count)
+    {
+        SetDefaultDataValue(DataType.Inventory, id, count);
+    }
+    public void ChangeElixirCount(string id, int count)
+    {
+        AddDefaultDataValue(DataType.Elixer, id, count);
+    }
+    public void SetElixirCount(string id, int count)
+    {
+        SetDefaultDataValue(DataType.Elixer, id, count);
+    }
+    public void ChangeCurrencyCount(int changeCrystal, int changeFragment)
+    {
+        AddDefaultDataValue(DataType.Currency, "currency", changeCrystal);
+        AddDefaultDataValue(DataType.Currency, "currency2", changeFragment);
+    }
+    public void SetCurrencyCount(int changeCrystal, int changeFragment)
+    {
+        SetDefaultDataValue(DataType.Currency, "currency", changeCrystal);
+        SetDefaultDataValue(DataType.Currency, "currency2", changeFragment);
+    }
+    /*
+    public void ChangeCurrencyCount(ulong totalCurrency, bool isPlus)
+    {
+        var havingCrystal = GetDefaultData(DataType.Currency, "currency");
+        var havingFragment = GetDefaultData(DataType.Currency, "currency2");
+
+        ulong havingTotalCurrency = (ulong)havingCrystal.count * FragmentToCrystalValue + (ulong)havingFragment.count;
+
+        if (havingTotalCurrency < totalCurrency)
+        {
+            Debug.LogError($"{DataType.Currency}의 개수는 0 미만이 될 수 없습니다.");
+            return;
+        }
+
+        int changeCrystal = (int)(totalCurrency / FragmentToCrystalValue);
+        int changeFragment = (int)(totalCurrency % FragmentToCrystalValue);
+
+        ChangeCurrencyCount(isPlus ? changeCrystal : -changeCrystal, isPlus ? changeFragment : -changeFragment);
+    }
+    */
+    public void SetCurrencyCount(ulong totalCurrency)
+    {
+        if (totalCurrency < 0)
+        {
+            Debug.LogError($"{DataType.Currency}의 개수는 0 미만이 될 수 없습니다.");
+            return;
+        }
+
+        int setCrystal = (int)(totalCurrency / FragmentToCrystalValue);
+        int setFragment = (int)(totalCurrency % FragmentToCrystalValue);
+
+        SetCurrencyCount(setCrystal, setFragment);
     }
 }

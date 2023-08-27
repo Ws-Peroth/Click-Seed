@@ -280,7 +280,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
             if (keyType == "Elixir")
             {
-                foreach(var item in DataManager.Instance.GetMstData().elixer)
+                foreach (var item in DataManager.Instance.GetMstData().elixer)
                 {
                     if(item.id == name)
                     {
@@ -324,8 +324,23 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         else if (EventId == "Buy")
         {
             var product = param[0] as InventoryPopup.ShopData;
+            DataManager.DataType buyType;
             // TODO: 1. GameManager에서 mstData의 "currency"와 "elixer" / "inventory" 데이터 부분을 수정하는 함수 작성
             // TODO: 2. 작성한 함수 호출
+            if(keyType == "Seed")
+            {
+                buyType = DataManager.DataType.SeedShop;
+            }
+            else if(keyType == "Elixir")
+            {
+                buyType = DataManager.DataType.ElixerShop;
+            }
+            else
+            {
+                Debug.LogError($"DataType Not Found\nPurchase Process Failed");
+                return;
+            }
+            GameManager.Instance.BuyItem(buyType, name, keyType);
             Debug.Log($"{product.name}을(를) 구매하였습니다");
         }
         else if (EventId == "UseItem")
@@ -333,6 +348,14 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             var product = param[0] as InventoryPopup.InventoryData;
             // TODO: 1. GameManager에서 mstData의 "currency"와 "elixer" / "inventory" 데이터 부분을 수정하는 함수 작성
             // TODO: 2. 작성한 함수 호출
+            if (keyType == "Seed")
+            {
+                // Plant
+            }
+            else if (keyType == "Elixir")
+            {
+                // Use Buff Item
+            }
             Debug.Log($"{product.name}을(를) 사용하였습니다");
         }
     }

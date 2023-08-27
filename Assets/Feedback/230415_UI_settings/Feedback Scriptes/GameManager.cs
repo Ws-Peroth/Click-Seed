@@ -36,9 +36,48 @@ public class GameManager : Singleton<GameManager>
         SceneManagerEx.Instance.LoadScene((SceneManagerEx.Scenes)1);
     }
 
-    // Update is called once per frame
-    void Update()
+    public void BuyItem(DataManager.DataType type, string id, string keyType)
     {
-        
+        DataManager.DataType buyType;
+        var buyData = DataManager.Instance.GetShopData(type, id);
+
+        if(buyData == null)
+        {
+            Debug.LogError($"Buy Item: {id} Not Found");
+            return;
+        }
+
+        var havingCrystal = DataManager.Instance.GetDefaultData(DataManager.DataType.Currency, "currency");
+        var havingFragment = DataManager.Instance.GetDefaultData(DataManager.DataType.Currency, "currency2");
+        ulong totalBuyPrice = (ulong)buyData.prices[0] * DataManager.FragmentToCrystalValue + (ulong)buyData.prices[1];
+        ulong havingCurrency = (ulong)havingCrystal.count * DataManager.FragmentToCrystalValue + (ulong)havingFragment.count;
+
+        if(totalBuyPrice > havingCurrency)
+        {
+            Debug.LogError($"BuyItem: {type}의 개수는 0 미만이 될 수 없습니다.");
+            return;
+        }
+        ulong resultCurrency = havingCurrency - totalBuyPrice;
+        int setCrystal = (int)resultCurrency / DataManager.FragmentToCrystalValue;
+        int setFragment = (int)resultCurrency % DataManager.FragmentToCrystalValue;
+        DataManager.Instance.SetCurrencyCount(setCrystal, setFragment);
+
+        if (keyType == "Seed")
+        {
+            buyType = DataManager.DataType.Inventory;
+        }
+        else if (keyType == "Elixir")
+        {
+            buyType = DataManager.DataType.Elixer;
+        }
+        else
+        {
+            Debug.LogError($"DataType Not Found\nPurchase Process Failed");
+            return;
+        }
+        var targetInventorData = DataManager.Instance.GetDefaultData(buyType, id);
+        targetInventorData.count += 1;
+        DataManager.Instance.SaveMstData();
+        Debug.Log($"Purchase Process Successed");
     }
 }
