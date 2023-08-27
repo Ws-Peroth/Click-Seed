@@ -29,9 +29,11 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         // "ShopIconElixir",
         // "Elixir",
         // "Seed",
+        "SelectItem",
         "Selected",
         "BuyItem",
         "Buy",
+        "UseItem"
     };
 
     private readonly string[] BtnNames = new string[]
@@ -165,8 +167,64 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     }
 
+    private string ItemIdToBtnName (string itemId)
+    {
+        string key = itemId;
+
+        foreach (var id in BtnNames)
+        {
+            if (key.StartsWith(id))
+            {
+                key = id;
+            }
+        }
+        return key;
+    }
+
+    private void SelectShopListCell(string key)
+    {
+        if (key == "ShopIconSeed")
+        {
+            popup.titleText.text = "Seed Inventory";
+
+            var inventoryData = new List<InventoryPopup.ShopData>();
+            for (int i = 0; i < DataManager.Instance.GetMstData().seedShop.Count; i++)
+            {
+                var data = DataManager.Instance.GetMstData().seedShop[i];
+                var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
+                inventoryData.Add(
+                    new InventoryPopup.ShopData(
+                        data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
+                        )
+                );
+            }
+            popup.Init(inventoryData.ToArray());
+            popup.gameObject.SetActive(true);
+        }
+        else if (key == "ShopIconElixir")
+        {
+            // Shop에서 Elixir 선택시, Elixir 구매 절차
+            // popup.titleText.text = "Seed Inventory";
+
+            var inventoryData = new List<InventoryPopup.ShopData>();
+            for (int i = 0; i < DataManager.Instance.GetMstData().elixerShop.Count; i++)
+            {
+                var data = DataManager.Instance.GetMstData().elixerShop[i];
+                var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
+                inventoryData.Add(
+                    new InventoryPopup.ShopData(
+                        data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
+                        )
+                );
+            }
+            popup.Init(inventoryData.ToArray());
+            popup.gameObject.SetActive(true);
+        }
+    }
+
     public void ReceiveEvent(string EventId, string name, object[] param)
     {
+        string keyType = ItemIdToBtnName(name);
         if (EventId == "BuyItem")
         {
             if (param == null || param.Length <= 0) { return; }
@@ -193,60 +251,75 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 "Confirm", $"Purchase {product.name }",
                 () =>
                 {
-                        // OK Callback
-                        // var datas = param as InventoryPopup.ShopData[];
-                        GlobalEventController.Instance.SendEvent("Buy", name, param);
+                    // OK Callback
+                    // var datas = param as InventoryPopup.ShopData[];
+                    GlobalEventController.Instance.SendEvent("Buy", name, param);
                 }
             );
         }
+        else if (EventId == "SelectItem")
+        {
+            if(keyType == "ShopIconSeed" || keyType == "ShopIconElixir")
+            {
+                SelectShopListCell(keyType);
+            }
+            else if (keyType == "Seed" || keyType == "Elixir")
+            {
+                GlobalEventController.Instance.SendEvent("Selected", name, param);
+                return;
+            }
+        }
         else if (EventId == "Selected")
         {
-            string key = name;
 
-            foreach (var id in BtnNames)
-            {
-                if (key.StartsWith(id))
-                {
-                    key = id;
-                }
-            }
-            if (key == "ShopIconSeed")
-            {
-                popup.titleText.text = "Seed Inventory";
+            if (param == null || param.Length <= 0) { return; }
 
-                var inventoryData = new List<InventoryPopup.ShopData>();
-                for (int i = 0; i < DataManager.Instance.GetMstData().seedShop.Count; i++)
-                {
-                    var data = DataManager.Instance.GetMstData().seedShop[i];
-                    var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
-                    inventoryData.Add(
-                        new InventoryPopup.ShopData(
-                            data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
-                            )
-                    );
-                }
-                popup.Init(inventoryData.ToArray());
-                popup.gameObject.SetActive(true);
-            }
-            else if (key == "ShopIconElixir")
-            {
-                // Shop에서 Elixir 선택시, Elixir 구매 절차
-                // popup.titleText.text = "Seed Inventory";
+            var product = param[0] as InventoryPopup.InventoryData;
+            var need = product.count;
+            int havingCount = 0;
 
-                var inventoryData = new List<InventoryPopup.ShopData>();
-                for (int i = 0; i < DataManager.Instance.GetMstData().elixerShop.Count; i++)
+            if (keyType == "Elixir")
+            {
+                foreach(var item in DataManager.Instance.GetMstData().elixer)
                 {
-                    var data = DataManager.Instance.GetMstData().elixerShop[i];
-                    var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.id);
-                    inventoryData.Add(
-                        new InventoryPopup.ShopData(
-                            data.name, data.id, sprite[0], InventoryPopup.InventoryType.Shop, data.prices
-                            )
-                    );
+                    if(item.id == name)
+                    {
+                        havingCount = item.count;
+                    }
                 }
-                popup.Init(inventoryData.ToArray());
-                popup.gameObject.SetActive(true);
+                Debug.Log($"Use Elixir {product.name}");
             }
+            else if (keyType == "Seed")
+            {
+                foreach (var item in DataManager.Instance.GetMstData().inventory)
+                {
+                    if (item.id == name)
+                    {
+                        havingCount = item.count;
+                    }
+                }
+                Debug.Log($"Plant Seed {product.name}");
+            }
+
+            confirmPopup.gameObject.SetActive(true);
+            if (havingCount < need)
+            {
+                // 사용불가 팝업
+                confirmPopup.Init(
+                    "Confirm", $"Not enough quantity for {product.name } to use",
+                    () => { }, () => { },
+                    true, false
+                );
+                return;
+            }
+
+            confirmPopup.Init(
+                "Confirm", $"Do you want to use  {product.name }",
+                () =>
+                {
+                    GlobalEventController.Instance.SendEvent("UseItem", name, param);
+                }
+            );
         }
         else if (EventId == "Buy")
         {
@@ -254,6 +327,13 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             // TODO: 1. GameManager에서 mstData의 "currency"와 "elixer" / "inventory" 데이터 부분을 수정하는 함수 작성
             // TODO: 2. 작성한 함수 호출
             Debug.Log($"{product.name}을(를) 구매하였습니다");
+        }
+        else if (EventId == "UseItem")
+        {
+            var product = param[0] as InventoryPopup.InventoryData;
+            // TODO: 1. GameManager에서 mstData의 "currency"와 "elixer" / "inventory" 데이터 부분을 수정하는 함수 작성
+            // TODO: 2. 작성한 함수 호출
+            Debug.Log($"{product.name}을(를) 사용하였습니다");
         }
     }
 
