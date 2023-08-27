@@ -14,6 +14,8 @@ public class InventoryCell : MonoBehaviour
     public GameObject priceObjectGroup;
     public TextMeshProUGUI crystalPriceText;
     public TextMeshProUGUI fragmentPriceText;
+    public GameObject crystalPriceTextArea;
+    public GameObject fragmentPriceTextArea;
 
 
     public Dictionary<InventoryPopup.InventoryType, string> preText = new()
@@ -82,6 +84,8 @@ public class InventoryCell : MonoBehaviour
             cellCountText.text = "";
             crystalPriceText.text = count[0].ToString();
             fragmentPriceText.text = count[1].ToString();
+            crystalPriceTextArea.SetActive(count[0] > 0);
+            fragmentPriceTextArea.SetActive(count[1] > 0);
         }
     }
 }

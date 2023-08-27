@@ -136,7 +136,7 @@ public class DataManager : Singleton<DataManager>
         Debug.Log(Path.Combine(Application.persistentDataPath, "mstData.json"));
         MstData = null;
         MstData = JsonManager.Instance.LoadJsonData<JsonData>(Path.Combine(Application.persistentDataPath, "mstData.json"));
-        if(MstData == null)
+        if(MstData == null || Application.isEditor)
         {
             // Data Init
 
@@ -156,7 +156,7 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Seed3", "Floresent Seed", 0),
                 new DefaultData ("Seed4", "Mushroom Seed", 0),
                 new DefaultData ("Seed5", "Tentaclel Seed", 0),
-                new DefaultData ("Seed6", "Sunflower Seed", 10),
+                new DefaultData ("Seed6", "Sunflower Seed", 0),
                 new DefaultData ("Seed7", "Seed on Fire", 0),
                 new DefaultData ("Seed8", "Carnivorous Seed", 0),
                 new DefaultData ("Seed9", "Lettuce Flower Seed", 0),
