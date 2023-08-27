@@ -142,8 +142,8 @@ public class DataManager : Singleton<DataManager>
 
             MstData = new JsonData();
             var currency = new List<DefaultData> {
-                new DefaultData ("currency", "Crescent", 0),
-                new DefaultData ("currency2", "Lunar Shard ", 0),
+                new DefaultData ("currency", "Crescent", 1000),
+                new DefaultData ("currency2", "Lunar Shard ", 10),
             };
             var elixer = new List<DefaultData> {
                 new DefaultData ("Elixir1", "Plant Aid", 0),
@@ -156,7 +156,7 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Seed3", "Floresent Seed", 0),
                 new DefaultData ("Seed4", "Mushroom Seed", 0),
                 new DefaultData ("Seed5", "Tentaclel Seed", 0),
-                new DefaultData ("Seed6", "Sunflower Seed", 0),
+                new DefaultData ("Seed6", "Sunflower Seed", 10),
                 new DefaultData ("Seed7", "Seed on Fire", 0),
                 new DefaultData ("Seed8", "Carnivorous Seed", 0),
                 new DefaultData ("Seed9", "Lettuce Flower Seed", 0),
@@ -166,15 +166,15 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("ShopIconSeed", "Seed Shop", 0),
             };
             var seedShop = new List<ProductData> {
-                new ProductData ("Seed1", "Slime Seed",         new int[]{ 10, 1000}),
-                new ProductData ("Seed2", "Crystal Seed",       new int[]{ 10, 1000}),
-                new ProductData ("Seed3", "Floresent Seed",     new int[]{ 10, 1000}),
-                new ProductData ("Seed4", "Mushroom Seed",      new int[]{ 10, 1000}),
-                new ProductData ("Seed5", "Tentaclel Seed",     new int[]{ 10, 1000}),
-                new ProductData ("Seed6", "Sunflower Seed",     new int[]{ 10, 1000}),
-                new ProductData ("Seed7", "Seed on Fire",       new int[]{ 10, 1000}),
-                new ProductData ("Seed8", "Carnivorous Seed",   new int[]{ 10, 1000}),
-                new ProductData ("Seed9", "Lettuce Flower Seed",new int[]{ 10, 1000}),
+                new ProductData ("Seed1", "Slime Seed",         new int[]{ 0, 50}),
+                new ProductData ("Seed2", "Crystal Seed",       new int[]{ 2, 0}),
+                new ProductData ("Seed3", "Floresent Seed",     new int[]{ 0, 100}),
+                new ProductData ("Seed4", "Mushroom Seed",      new int[]{ 0, 150}),
+                new ProductData ("Seed5", "Tentaclel Seed",     new int[]{ 0, 200}),
+                new ProductData ("Seed6", "Sunflower Seed",     new int[]{ 0, 10}),
+                new ProductData ("Seed7", "Seed on Fire",       new int[]{ 3, 0}),
+                new ProductData ("Seed8", "Carnivorous Seed",   new int[]{ 0, 300}),
+                new ProductData ("Seed9", "Lettuce Flower Seed",new int[]{ 1, 0}),
             };
             var elixerShop = new List<ProductData> {
                 new ProductData ("Elixir1", "Plant Aid",        new int[]{ 10, 1000}),
