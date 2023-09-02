@@ -151,6 +151,7 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Elixir1", "Plant Aid", 0),
                 new DefaultData ("Elixir2", "Plant Supplements", 0),
                 new DefaultData ("Elixir3", "Sprite Helper", 0),
+                new DefaultData ("Elixir4", "Elven Blessing", 0),
             };
             var inventory = new List<DefaultData> {
                 new DefaultData ("Seed1", "Slime Seed", 0),
@@ -182,6 +183,7 @@ public class DataManager : Singleton<DataManager>
                 new ProductData ("Elixir1", "Plant Aid",        new int[]{ 10, 1000}),
                 new ProductData ("Elixir2", "Plant Supplements",new int[]{ 10, 1000 }),
                 new ProductData ("Elixir3", "Sprite Helper",    new int[]{ 10, 1000 }),
+                new ProductData ("Elixir4", "Elven Blessing",    new int[]{ 10, 1000 }),
             };
             DefaultData growing = new DefaultData("", "", 0);
             var quest = new List<QuestData> {
