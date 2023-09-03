@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
+  RESET_JSON_ON: 1
 --- !u!1 &91560045
 GameObject:
   m_ObjectHideFlags: 0

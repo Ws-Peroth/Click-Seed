@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class MainScene : MonoBehaviour, IGlobalEventReceiver
 {
+    [SerializeField] private Button harvestButton;
     [SerializeField] private Button elixirButton;
     [SerializeField] private Button seedButton;
     [SerializeField] private Button shelfButton;
@@ -21,6 +22,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     [SerializeField] private InventoryPopup popup;
     [SerializeField] private ConfirmPopup confirmPopup;
+    DataManager.GrowupType currentType = DataManager.GrowupType.Seed;
 
     // 이벤트 수신을 위한 이벤트 키 값들
     private readonly string[] EventIds = new string[]
@@ -44,18 +46,54 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         "Seed",
     };
 
+    private void InitHarvestButton(string plantId)
+    {
+        var plantCount = DataManager.Instance.GetDefaultData(DataManager.DataType.Plant, plantId).count;
+        var currentCount = DataManager.Instance.GetDefaultData(DataManager.DataType.Growing, plantId).count;
+        var isHarvest = plantCount <= currentCount;
+        harvestButton.gameObject.SetActive(isHarvest);
+    }
+
+    public void InitPlantImage()
+    {
+        var isDataNull = DataManager.Instance.GetMstData().growing == null;
+        var isDataEmpty = DataManager.Instance.GetMstData().growing.id == "";
+        if(isDataNull || isDataEmpty)
+        {
+            var blankSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>("blank");
+            seed.sprite = blankSprite[0];
+            seed.color = new Color(1, 1, 1, 1);
+            clickCountText.text = $"";
+            harvestButton.gameObject.SetActive(false);
+            return;
+        }
+
+        var plantId = DataManager.Instance.GetMstData().growing.id;
+        var plantSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(plantId);
+        var step = GameManager.Instance.GetGrowStepByClickCount(DataManager.Instance.GetMstData().growing.id, DataManager.Instance.GetMstData().growing.count);
+        seed.sprite = plantSprite[(int)step];
+        seed.color = new Color(1, 1, 1, 1);
+        clickCountText.text = $"{DataManager.Instance.GetMstData().growing.count}";
+        currentType = step;
+        InitHarvestButton(plantId);
+    }
+    public void SetPlantImage(string seedId)
+    {
+        // var seed = DataManager.Instance.GetShopData(DataManager.DataType.SeedShop, seedId);
+        if (seed == null)
+        {
+            Debug.LogError($"seedShop에서 {seedId}를 찾을 수 없습니다");
+            return;
+        }
+        
+    }
+
     // Start is called before the first frame update
     private void Start()
     {
         popup.gameObject.SetActive(false);
         confirmPopup.gameObject.SetActive(false);
-        var isDataNull = DataManager.Instance.GetMstData().growing == null;
-        var path = (isDataNull || string.IsNullOrEmpty(DataManager.Instance.GetMstData().growing.name)) ? "" : DataManager.Instance.GetMstData().growing.name;
-        var plantSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(path);
-        seed.sprite = plantSprite != null && plantSprite[0] != null ? plantSprite[0] : null;
-        seed.color = new Color(1, 1, 1, 0);
-
-        clickCountText.text = "0";
+        InitPlantImage();
 
         elixirButton.onClick.AddListener(() =>
         {
@@ -128,8 +166,14 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         potButton.onClick.AddListener(() =>
         {
             Debug.Log("Clicked!");
-            GameManager.Instance.PotClicked(GrowUp);
+            GameManager.Instance.PotClicked(GrowUp, ActiveHarvest);
+            // IF(Addtional Touch Buff On) GameManager.Instance.PotClicked(GrowUp, ActiveHarvest);
             clickCountText.text = DataManager.Instance.GetMstData().growing.count.ToString();
+        });
+
+        harvestButton.onClick.AddListener(() =>
+        {
+            Debug.Log("harvest Button Clicked");
         });
     }
 
@@ -162,9 +206,19 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         }
     }
 
+    private void ActiveHarvest(bool isActive)
+    {
+        // 수확 기능 활성화
+        harvestButton.gameObject.SetActive(isActive);
+    }
+
     private void GrowUp(DataManager.GrowupType type)
     {
-
+        if(currentType == type) { 
+            return;
+        }
+        currentType = type;
+        InitPlantImage();
     }
 
     private string ItemIdToBtnName (string itemId)
@@ -293,6 +347,19 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             {
                 foreach (var item in DataManager.Instance.GetMstData().inventory)
                 {
+                    if (DataManager.Instance.GetMstData().growing.id != "")
+                    {
+                        // Plant 불가 팝업 (이미 씨앗이 심어져 있음)
+
+                        confirmPopup.gameObject.SetActive(true);
+                        confirmPopup.Init(
+                            "Confirm", $"Cannot plant {product.name} because seed is already planted",
+                            () => { }, () => { },
+                            true, false
+                        );
+                        return;
+                    }
+
                     if (item.id == name)
                     {
                         havingCount = item.count;
@@ -355,6 +422,8 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 // Plant
                 Debug.Log($"{product.name}을(를) 심었습니다");
                 PlantSeed(product);
+                confirmPopup.gameObject.SetActive(false);
+                popup.gameObject.SetActive(false);
             }
             else if (keyType == "Elixir")
             {
@@ -367,7 +436,18 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
     public void PlantSeed(InventoryPopup.InventoryData data)
     {
+        var plant = GameManager.Instance.FindPlantWithSeedName(data.name);
+        if(plant == null)
+        {
+            Debug.LogError($"{data.name}의 plant정보를 불러올 수 없습니다");
+            return;
+        }
+        var plantSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(plant.id);
 
+        GameManager.Instance.PlantSeed(plant.id, () => {
+            // Grow up 했을 경우에 이미지 교환
+            InitPlantImage();
+        } );
     }
 
     public object GetOriginObject()

@@ -10,29 +10,80 @@ public class GameManager : Singleton<GameManager>
     // 서버에서의 로직을 처리하도록 하고 싶은데...
     // [DataManager <--> GameManager] <===> Client Scripts
 
-    public void PotClicked(Action<DataManager.GrowupType> growUpAction )
+    public void PotClicked(Action<DataManager.GrowupType> growUpAction, Action<bool> activeHarvest)
     {   
         var growing = DataManager.Instance.GetMstData().growing;
         var isPlanted = !(growing == null || string.IsNullOrEmpty(growing.name));
-
         if (!isPlanted)
         {
             // plant가 없는 경우에는 무시
             return;
         }
-        DataManager.Instance.GetMstData().growing.count++;
-        for(int i = DataManager.Instance.PotGrowupCount.Length -1; i >= 0; i--)
+        var step = GetGrowStepByClickCount(growing.id, DataManager.Instance.GetMstData().growing.count + 1);
+
+        // 이미 Max일 경우
+        var maxCount = DataManager.Instance.GetDefaultData(DataManager.DataType.Plant, growing.id).count;
+        if (growing.count + 1 < maxCount)
         {
-            if(DataManager.Instance.GetMstData().growing.count == DataManager.Instance.PotGrowupCount[i])
-            {
-                growUpAction((DataManager.GrowupType)i);
-            }
+            DataManager.Instance.GetMstData().growing.count++;
+            activeHarvest(false);
         }
+        else
+        {
+            Debug.Log("Activate Harvest");
+            DataManager.Instance.GetMstData().growing.count = maxCount;
+            activeHarvest(true);
+        }
+        DataManager.Instance.SaveMstData();
+        growUpAction(step);
     }
 
-    public void PlantSeed(string id)
+    public DefaultData FindPlantWithSeedName(string seedName)
     {
+        var plantData = DataManager.Instance.GetMstData().plant.Find((m) => m.name == seedName);
+        return plantData;
+    }
+    public ProductData FindSeedShopWithPlantName(string plantName)
+    {
+        var seedData = DataManager.Instance.GetMstData().seedShop.Find((m) => m.name == plantName);
+        return seedData;
+    }
 
+    public DataManager.GrowupType GetGrowStepByClickCount(string plantId, int clickCount)
+    {
+        // Max      : 50
+        // 0 ~ 9    : Seed
+        // 10 ~ 19  : Sprout1
+        // 20 ~ 29  : Sprout2
+        // 30 ~ 39  : Blooming
+        // 40 ~ 50  : Flower
+        // 50       => Harvest On
+
+        var plantData = DataManager.Instance.GetDefaultData(DataManager.DataType.Plant, plantId);
+        if(plantData == null)
+        {
+            Debug.LogError($"GameManager.GetGrowStepByClickCount(): not found default Data ({plantId})");
+        }
+        var maxCount = plantData.count;
+        int stepCount = Math.Min(clickCount / (maxCount / 5), 4);
+        return (DataManager.GrowupType)stepCount;
+    }
+
+    public void PlantSeed(string plantId, Action callback)
+    {
+        var growingData = DataManager.Instance.GetDefaultData(DataManager.DataType.Plant, plantId);
+        if (growingData == null)
+        {
+            Debug.LogError($"GameManager.PlantSeed(): {plantId} Not foune in seedShop data");
+            return;
+        }
+        var data = new DefaultData(growingData.id, growingData.name, 0);
+        // DataManager.Instance.SetSeedCount()
+        var seedId = FindSeedShopWithPlantName(growingData.name).id;
+        DataManager.Instance.ChangeSeedCount(seedId, -1);
+        DataManager.Instance.SetGrowingData(data);
+        DataManager.Instance.SaveMstData();
+        callback();
     }
 
     // Start is called before the first frame update
@@ -40,6 +91,7 @@ public class GameManager : Singleton<GameManager>
     {
         SceneManagerEx.Instance.LoadScene((SceneManagerEx.Scenes)1);
     }
+
 
     public bool BuyItem(DataManager.DataType type, string id, string keyType)
     {
