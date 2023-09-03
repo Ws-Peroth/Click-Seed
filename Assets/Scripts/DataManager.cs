@@ -151,6 +151,7 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Elixir1", "Plant Aid", 0),
                 new DefaultData ("Elixir2", "Plant Supplements", 0),
                 new DefaultData ("Elixir3", "Sprite Helper", 0),
+                new DefaultData ("Elixir4", "Elven Blessing", 0),
             };
             var inventory = new List<DefaultData> {
                 new DefaultData ("Seed1", "Slime Seed", 0),
@@ -162,6 +163,7 @@ public class DataManager : Singleton<DataManager>
                 new DefaultData ("Seed7", "Seed on Fire", 0),
                 new DefaultData ("Seed8", "Carnivorous Seed", 0),
                 new DefaultData ("Seed9", "Lettuce Flower Seed", 0),
+                new DefaultData ("Seed10", "Catcus Seed", 0),
             }; 
             var shopList = new List<DefaultData> {
                 new DefaultData ("ShopIconElixir", "Elixer Shop", 0),
@@ -177,11 +179,13 @@ public class DataManager : Singleton<DataManager>
                 new ProductData ("Seed7", "Seed on Fire",       new int[]{ 3, 0}),
                 new ProductData ("Seed8", "Carnivorous Seed",   new int[]{ 0, 300}),
                 new ProductData ("Seed9", "Lettuce Flower Seed",new int[]{ 1, 0}),
+                new ProductData ("Seed10", "Cactus Seed",       new int[]{ 0, 30}),
             };
             var elixerShop = new List<ProductData> {
-                new ProductData ("Elixir1", "Plant Aid",        new int[]{ 10, 1000}),
-                new ProductData ("Elixir2", "Plant Supplements",new int[]{ 10, 1000 }),
-                new ProductData ("Elixir3", "Sprite Helper",    new int[]{ 10, 1000 }),
+                new ProductData ("Elixir1", "Plant Aid",        new int[]{ 0, 500}),
+                new ProductData ("Elixir2", "Plant Supplements",new int[]{ 0, 1000 }),
+                new ProductData ("Elixir3", "Sprite Helper",    new int[]{ 0, 2500 }),
+                new ProductData ("Elixir4", "Elven Blessing",    new int[]{ 1, 0 }),
             };
             DefaultData growing = new DefaultData("", "", 0);
             var quest = new List<QuestData> {
