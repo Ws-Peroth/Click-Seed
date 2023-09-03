@@ -314,7 +314,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             }
 
             confirmPopup.Init(
-                "Confirm", $"Do you want to use  {product.name }",
+                "Confirm", $"Do you want to { (keyType == "Seed" ? "plant" : "use")} {product.name}?" ,
                 () =>
                 {
                     GlobalEventController.Instance.SendEvent("UseItem", name, param);
@@ -340,8 +340,10 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 Debug.LogError($"DataType Not Found\nPurchase Process Failed");
                 return;
             }
-            GameManager.Instance.BuyItem(buyType, name, keyType);
-            Debug.Log($"{product.name}을(를) 구매하였습니다");
+            if (GameManager.Instance.BuyItem(buyType, name, keyType))
+            {
+                Debug.Log($"{product.name}을(를) 구매하였습니다");
+            }
         }
         else if (EventId == "UseItem")
         {
@@ -351,13 +353,21 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             if (keyType == "Seed")
             {
                 // Plant
+                Debug.Log($"{product.name}을(를) 심었습니다");
+                PlantSeed(product);
             }
             else if (keyType == "Elixir")
             {
                 // Use Buff Item
+                Debug.Log($"{product.name}을(를) 사용하였습니다");
+
             }
-            Debug.Log($"{product.name}을(를) 사용하였습니다");
         }
+    }
+
+    public void PlantSeed(InventoryPopup.InventoryData data)
+    {
+
     }
 
     public object GetOriginObject()

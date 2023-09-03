@@ -30,13 +30,18 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
+    public void PlantSeed(string id)
+    {
+
+    }
+
     // Start is called before the first frame update
     public void LoadFirstScene()
     {
         SceneManagerEx.Instance.LoadScene((SceneManagerEx.Scenes)1);
     }
 
-    public void BuyItem(DataManager.DataType type, string id, string keyType)
+    public bool BuyItem(DataManager.DataType type, string id, string keyType)
     {
         DataManager.DataType buyType;
         var buyData = DataManager.Instance.GetShopData(type, id);
@@ -44,7 +49,7 @@ public class GameManager : Singleton<GameManager>
         if(buyData == null)
         {
             Debug.LogError($"Buy Item: {id} Not Found");
-            return;
+            return false;
         }
 
         var havingCrystal = DataManager.Instance.GetDefaultData(DataManager.DataType.Currency, "currency");
@@ -55,7 +60,7 @@ public class GameManager : Singleton<GameManager>
         if(totalBuyPrice > havingCurrency)
         {
             Debug.LogError($"BuyItem: {type}의 개수는 0 미만이 될 수 없습니다.");
-            return;
+            return false;
         }
         ulong resultCurrency = havingCurrency - totalBuyPrice;
         int setCrystal = (int)resultCurrency / DataManager.FragmentToCrystalValue;
@@ -73,11 +78,13 @@ public class GameManager : Singleton<GameManager>
         else
         {
             Debug.LogError($"DataType Not Found\nPurchase Process Failed");
-            return;
+            return false;
         }
         var targetInventorData = DataManager.Instance.GetDefaultData(buyType, id);
         targetInventorData.count += 1;
         DataManager.Instance.SaveMstData();
         Debug.Log($"Purchase Process Successed");
+
+        return true;
     }
 }

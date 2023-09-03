@@ -322,26 +322,7 @@ public class DataManager : Singleton<DataManager>
         SetDefaultDataValue(DataType.Currency, "currency", changeCrystal);
         SetDefaultDataValue(DataType.Currency, "currency2", changeFragment);
     }
-    /*
-    public void ChangeCurrencyCount(ulong totalCurrency, bool isPlus)
-    {
-        var havingCrystal = GetDefaultData(DataType.Currency, "currency");
-        var havingFragment = GetDefaultData(DataType.Currency, "currency2");
 
-        ulong havingTotalCurrency = (ulong)havingCrystal.count * FragmentToCrystalValue + (ulong)havingFragment.count;
-
-        if (havingTotalCurrency < totalCurrency)
-        {
-            Debug.LogError($"{DataType.Currency}의 개수는 0 미만이 될 수 없습니다.");
-            return;
-        }
-
-        int changeCrystal = (int)(totalCurrency / FragmentToCrystalValue);
-        int changeFragment = (int)(totalCurrency % FragmentToCrystalValue);
-
-        ChangeCurrencyCount(isPlus ? changeCrystal : -changeCrystal, isPlus ? changeFragment : -changeFragment);
-    }
-    */
     public void SetCurrencyCount(ulong totalCurrency)
     {
         if (totalCurrency < 0)
@@ -354,5 +335,14 @@ public class DataManager : Singleton<DataManager>
         int setFragment = (int)(totalCurrency % FragmentToCrystalValue);
 
         SetCurrencyCount(setCrystal, setFragment);
+    }
+
+    public void SetGrowingData(DefaultData growingData)
+    {
+        MstData.growing = growingData;
+    }
+    public void SetGrowingCount(int clickCount)
+    {
+        MstData.growing.count = clickCount;
     }
 }
