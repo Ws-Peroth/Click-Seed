@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -10,7 +11,18 @@ public class GameManager : Singleton<GameManager>
     // 서버에서의 로직을 처리하도록 하고 싶은데...
     // [DataManager <--> GameManager] <===> Client Scripts
 
-    public void PotClicked(Action<DataManager.GrowupType> growUpAction, Action<bool> activeHarvest)
+    public bool Harvest(string plantId)
+    {
+        if (DataManager.Instance.AddShelf(plantId))
+        {
+            DataManager.Instance.SetGrowingData(DefaultData.Dummy());
+            DataManager.Instance.SaveMstData();
+            return true;
+        }
+        return false;
+    }
+
+    public void PotClicked(Action<DataManager.GrowupType> growUpAction, Action<bool> activeHarvest, bool isAutoClick = false)
     {   
         var growing = DataManager.Instance.GetMstData().growing;
         var isPlanted = !(growing == null || string.IsNullOrEmpty(growing.name));
@@ -19,13 +31,30 @@ public class GameManager : Singleton<GameManager>
             // plant가 없는 경우에는 무시
             return;
         }
-        var step = GetGrowStepByClickCount(growing.id, DataManager.Instance.GetMstData().growing.count + 1);
+
+        var clickCount = 1;
+
+        if (isAutoClick == false)
+        {
+            // Check Buff
+            var clickBuffs = DataManager.Instance.GetMstData().buffs
+                .Where((v, idx) => v.buff == DataManager.BuffType.AdditionalClick && v.leftBuffSec > 0)
+                .Select((v) => v.buffCount)
+                .ToList();
+            var isEmpty = clickBuffs == null || clickBuffs.Count == 0;
+            var sum = clickBuffs.Sum();
+            var addClick = isEmpty ? 0 : sum;
+
+            clickCount += addClick;
+        }
+
+        var step = GetGrowStepByClickCount(growing.id, DataManager.Instance.GetMstData().growing.count + clickCount);
 
         // 이미 Max일 경우
         var maxCount = DataManager.Instance.GetDefaultData(DataManager.DataType.Plant, growing.id).count;
-        if (growing.count + 1 < maxCount)
+        if (growing.count + clickCount < maxCount)
         {
-            DataManager.Instance.GetMstData().growing.count++;
+            DataManager.Instance.GetMstData().growing.count += clickCount;
             activeHarvest(false);
         }
         else
@@ -138,5 +167,78 @@ public class GameManager : Singleton<GameManager>
         Debug.Log($"Purchase Process Successed");
 
         return true;
+    }
+    public IEnumerator AutoClickBuff(int clickCount)
+    {
+        var restTime =  1.0f / clickCount;
+        Debug.Log($"AutoClickBuff: {1.0f} / {clickCount} => restTime = {restTime}");
+        for(int i = 0; i < clickCount; i++)
+        {
+            // Add Click Count
+            PotClicked(
+                (growupType) => {
+                    GlobalEventController.Instance.SendEvent("GrowUp", "GrowUp", new object[] { growupType });
+                }, 
+                (isHarvestOn) => {
+                    GlobalEventController.Instance.SendEvent("Harvest", "Harvest", new object[] { isHarvestOn });
+                }, true);
+            yield return new WaitForSecondsRealtime(restTime);
+        }
+        yield return null;
+    }
+
+    public IEnumerator UpdateBuffTime()
+    {
+        while (true)
+        {
+            yield return new WaitForSecondsRealtime(1);
+            var buffInfos = DataManager.Instance.GetMstData().buffs;
+            foreach (var buff in buffInfos)
+            {
+                if (buff.leftBuffSec > 0)
+                {
+                    DataManager.Instance.SetBuffTime(buff.id, buff.leftBuffSec - 1);
+                    if (buff.buff == DataManager.BuffType.AutoClick)
+                    {
+                        StartCoroutine(AutoClickBuff(buff.buffCount));
+                    }
+                }
+                else
+                {
+                    buff.leftBuffSec = 0;
+                }
+            }
+            DataManager.Instance.GetMstData().buffs = buffInfos;
+            DataManager.Instance.SaveMstData();
+        }
+    }
+
+    public bool UseElixir(string id)
+    {
+        var targetBuff = DataManager.Instance.GetMstData().buffs
+            .Where((v) => v.id == id)
+            .ToList();
+        if(targetBuff == null || targetBuff.Count == 0)
+        {
+            Debug.LogError($"GameManager.UseElixir(): {id}버프를 찾을 수 없습니다");
+            return false;
+        }
+        var buff = targetBuff[0];
+        if(buff.leftBuffSec > 0)
+        {
+            Debug.Log($"GameManager.UseElixir(): {id}는 이미 사용중인 버프입니다");
+            return false;
+        }
+
+        var time = DataManager.Instance.GetSetBuffData(id).leftBuffSec;
+        DataManager.Instance.SetBuffTime(id, time);
+        DataManager.Instance.ChangeElixirCount(id, -1);
+        DataManager.Instance.SaveMstData();
+        return true;
+    }
+
+    private void Start()
+    {
+        StartCoroutine(UpdateBuffTime());
     }
 }

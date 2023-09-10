@@ -7,8 +7,37 @@ using UnityEngine;
 #region DATA_DEFINED
 
 [Serializable]
+public class BuffData
+{
+    public string id;
+    public DataManager.BuffType buff;
+    public int buffCount;
+    // buff is AdditionalClick: buffCount = Additional Click Count
+    // buff is AutoClick: buffCount = click count per 1 sec
+    public int leftBuffSec;
+
+    public static BuffData Dummy()
+    {
+        return new BuffData("", DataManager.BuffType.None, 0, 0);
+    }
+
+    public BuffData(string id, DataManager.BuffType buff, int buffCount, int leftBuffSec)
+    {
+        this.id = id;
+        this.buff = buff;
+        this.buffCount = buffCount;
+        this.leftBuffSec = leftBuffSec;
+    }
+}
+
+[Serializable]
 public class DefaultData
 {
+    public static DefaultData Dummy()
+    {
+        return new DefaultData("", "", 0);
+    }
+
     public string id;
     public string name;
     public int count;
@@ -64,8 +93,10 @@ public class JsonData
     public List<ProductData> elixerShop;
     public List<DefaultData> plant;
     public List<QuestData> quest;
-    public string[] shelf;
+    public List<string> shelf;
     public DefaultData growing;
+    public List<BuffData> buffs;
+    public List<BuffData> buffSettingData;
 
     public void Init(
         List<DefaultData> currency,
@@ -77,7 +108,9 @@ public class JsonData
         List<DefaultData> plant,
         DefaultData growing,
         List<QuestData> quest, 
-        string[] shelf)
+        List<string> shelf, 
+        List<BuffData> buffs,
+        List<BuffData> buffSettingData)
     {
         this.currency = currency;
         this.elixer = elixer;
@@ -89,6 +122,8 @@ public class JsonData
         this.growing = growing;
         this.quest = quest;
         this.shelf = shelf;
+        this.buffs = buffs;
+        this.buffSettingData = buffSettingData;
     }
 }
 #endregion
@@ -103,6 +138,13 @@ public class DataManager : Singleton<DataManager>
     public JsonData GetMstData() { return MstData; }
     public const int FragmentToCrystalValue = 5000;
     public bool RESET_JSON_ON = false;
+
+    public enum BuffType
+    {
+        None,
+        AdditionalClick,
+        AutoClick
+    }
 
     public enum DataType
     {
@@ -213,12 +255,33 @@ public class DataManager : Singleton<DataManager>
                 new ProductData ("Elixir4", "Elven Blessing",    new int[]{ 1, 0 }),
             };
             // plantID, plantName, TotalClickCount
-            var growing = new DefaultData("", "", 0);
+            var growing = DefaultData.Dummy();
             var quest = new List<QuestData> {
             };
-            var shelf = new string[] {
+            var shelf = new List<string>() {
             };
+            var buffs = new List<BuffData>()
+            {
+                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 0),
+                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 0),
+                new BuffData("Elixir3", BuffType.AutoClick, 5, 0),
+                new BuffData("Elixir4", BuffType.AutoClick, 10, 0)
+            };
+            var buffSettingData = new List<BuffData>()
+            {
+                /*
+                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 5 * 60),
+                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 10 * 60),
+                new BuffData("Elixir3", BuffType.AutoClick, 5, 3 * 60),
+                new BuffData("Elixir4", BuffType.AutoClick, 10, 5 * 60)
+                */
 
+                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 1 * 60),
+                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 2 * 60),
+                new BuffData("Elixir3", BuffType.AutoClick, 5, 1 * 60),
+                new BuffData("Elixir4", BuffType.AutoClick, 10, 2 * 60)
+                
+            };
             MstData.Init(
                 currency:   currency,
                 elixer:     elixer,
@@ -229,7 +292,9 @@ public class DataManager : Singleton<DataManager>
                 quest:      quest,
                 shelf:      shelf,
                 seedShop:   seedShop,
-                elixerShop: elixerShop
+                elixerShop: elixerShop,
+                buffs:      buffs,
+                buffSettingData: buffSettingData
                 );
             JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
             MstData = JsonManager.Instance.LoadJsonData<JsonData>(Path.Combine(Application.persistentDataPath, "mstData.json"));
@@ -243,6 +308,15 @@ public class DataManager : Singleton<DataManager>
     {
         JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
         // System.IO.File.WriteAllText(Path.Combine(Application.persistentDataPath, "file.txt"), jsonTextFile);
+    }
+
+    public BuffData GetBuffData(string id)
+    {
+        return GetMstData().buffs.Find((m) => m.id == id);
+    }
+    public BuffData GetSetBuffData(string id)
+    {
+        return GetMstData().buffSettingData.Find((m) => m.id == id);
     }
 
     public DefaultData GetDefaultData(DataType type, string id)
@@ -349,6 +423,19 @@ public class DataManager : Singleton<DataManager>
         SetDefaultDataValue(DataType.Currency, "currency", changeCrystal);
         SetDefaultDataValue(DataType.Currency, "currency2", changeFragment);
     }
+   
+    public bool AddShelf(string plantId)
+    {
+        // If plantId is in MstData.plant
+        if (MstData.plant.Exists((m) => m.id == plantId))
+        {
+            MstData.shelf.Add(plantId);
+            MstData.growing = DefaultData.Dummy();
+            return true;
+        }
+        Debug.LogError($"DataManager.AddShelf(): {plantId} is not in MstData.plant");
+        return false;
+    }
 
     public void SetCurrencyCount(ulong totalCurrency)
     {
@@ -364,12 +451,31 @@ public class DataManager : Singleton<DataManager>
         SetCurrencyCount(setCrystal, setFragment);
     }
 
-    public void SetGrowingData(DefaultData growingData)
-    {
-        MstData.growing = growingData;
-    }
     public void SetGrowingCount(int clickCount)
     {
         MstData.growing.count = clickCount;
+    }
+    public void SetGrowingData(DefaultData data)
+    {
+        MstData.growing = data;
+    }
+
+    public void SetBuffTime(string id, int time)
+    {
+        var targetItem = GetBuffData(id);
+
+        if (targetItem == null)
+        {
+            Debug.LogError($"buff에서 {id}을(를) 찾을 수 없습니다");
+            return;
+        }
+        if (time < 0)
+        {
+            // Can't Use this Seed
+            Debug.LogError($"버프 지속 시간은 0 미만이 될 수 없습니다.");
+            return;
+        }
+        targetItem.leftBuffSec = time;
+        SaveMstData();
     }
 }

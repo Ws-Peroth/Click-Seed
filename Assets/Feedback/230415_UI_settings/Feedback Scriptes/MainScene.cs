@@ -16,6 +16,9 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     [SerializeField] private TextMeshProUGUI[] currencyText = new TextMeshProUGUI[2];
     [SerializeField] private TextMeshProUGUI clickCountText;
 
+    [SerializeField] private TextMeshProUGUI[] buffTimeTexts;
+    [SerializeField] private GameObject[] buffTimeTextAreas;
+
     [SerializeField] private Sprite[] popupContentImages;
     [SerializeField] private Sprite[] growSeedImages;
     [SerializeField] private Image seed;
@@ -27,15 +30,13 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
     // 이벤트 수신을 위한 이벤트 키 값들
     private readonly string[] EventIds = new string[]
     {
-        // "ShopIconSeed",
-        // "ShopIconElixir",
-        // "Elixir",
-        // "Seed",
         "SelectItem",
         "Selected",
         "BuyItem",
         "Buy",
-        "UseItem"
+        "UseItem",
+        "Harvest",
+        "GrowUp"
     };
 
     private readonly string[] BtnNames = new string[]
@@ -63,7 +64,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             var blankSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>("blank");
             seed.sprite = blankSprite[0];
             seed.color = new Color(1, 1, 1, 1);
-            clickCountText.text = $"";
+            clickCountText.text = $"0";
             harvestButton.gameObject.SetActive(false);
             return;
         }
@@ -76,16 +77,6 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         clickCountText.text = $"{DataManager.Instance.GetMstData().growing.count}";
         currentType = step;
         InitHarvestButton(plantId);
-    }
-    public void SetPlantImage(string seedId)
-    {
-        // var seed = DataManager.Instance.GetShopData(DataManager.DataType.SeedShop, seedId);
-        if (seed == null)
-        {
-            Debug.LogError($"seedShop에서 {seedId}를 찾을 수 없습니다");
-            return;
-        }
-        
     }
 
     // Start is called before the first frame update
@@ -163,17 +154,28 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
         });
 
+        shelfButton.onClick.AddListener(() =>
+        {
+            SceneManagerEx.Instance.LoadScene(SceneManagerEx.Scenes.Shelf);
+        });
+
         potButton.onClick.AddListener(() =>
         {
             Debug.Log("Clicked!");
             GameManager.Instance.PotClicked(GrowUp, ActiveHarvest);
             // IF(Addtional Touch Buff On) GameManager.Instance.PotClicked(GrowUp, ActiveHarvest);
-            clickCountText.text = DataManager.Instance.GetMstData().growing.count.ToString();
         });
 
         harvestButton.onClick.AddListener(() =>
         {
             Debug.Log("harvest Button Clicked");
+            if (GameManager.Instance.Harvest(DataManager.Instance.GetMstData().growing.id))
+            {
+                // Add effects if needed
+                var blankSprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>("blank");
+                seed.sprite = blankSprite[0];
+                harvestButton.gameObject.SetActive(false);
+            }
         });
     }
 
@@ -203,6 +205,21 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
         for(int i = 0; i < currencyText.Length; i++)
         {
             currencyText[i].text = DataManager.Instance.GetMstData().currency[i].count.ToString();
+        }
+        clickCountText.text = DataManager.Instance.GetMstData().growing.count.ToString();
+
+        var buffInfo = DataManager.Instance.GetMstData().buffs;
+        for(int i = 0; i < buffInfo.Count; i++)
+        {
+            if(buffInfo[i].leftBuffSec > 0)
+            {
+                buffTimeTextAreas[i].gameObject.SetActive(true);
+                buffTimeTexts[i].text = $"{buffInfo[i].leftBuffSec} sec";
+            }
+            else
+            {
+                buffTimeTextAreas[i].gameObject.SetActive(false);
+            }
         }
     }
 
@@ -430,7 +447,28 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                 // Use Buff Item
                 Debug.Log($"{product.name}을(를) 사용하였습니다");
 
+                // if: product.name is On
+                if (GameManager.Instance.UseElixir(product.id) == false)
+                {
+                    // show ErrorPopup
+                    confirmPopup.gameObject.SetActive(true);
+                    confirmPopup.Init(
+                        "Confirm", $"Cannot use {product.name} because {product.name} is already activated",
+                        () => { }, () => { },
+                        true, false
+                    );
+                    return;
+                }
+                confirmPopup.gameObject.SetActive(false);
+                popup.gameObject.SetActive(false);
             }
+        }
+        else if(EventId == "GrowUp") {
+            var type = (DataManager.GrowupType)param[0];
+            GrowUp(type);
+        }
+        else if(EventId == "Harvest") {
+            ActiveHarvest((bool)param[0]);
         }
     }
 

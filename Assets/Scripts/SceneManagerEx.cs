@@ -9,7 +9,8 @@ public class SceneManagerEx : Singleton<SceneManagerEx>
     {
         Init,
         Title,
-        Main
+        Main,
+        Shelf
     };
 
     public void LoadScene(Scenes scene)
