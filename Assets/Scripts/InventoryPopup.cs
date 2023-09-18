@@ -13,7 +13,8 @@ public class InventoryPopup : Popup
     {
         Inventory,
         ShopList,
-        Shop
+        Shop,
+        Quest
     }
 
     public class InventoryData
@@ -31,6 +32,25 @@ public class InventoryPopup : Popup
             this.image = image;
             this.inventoryType = inventoryType;
             this.count = count;
+        }
+    }
+    public class QuestData
+    {
+        public string id;
+        public string npcName;
+        public string questStory;
+        public Sprite image;
+        public InventoryType inventoryType;
+        public int[] rewards;
+
+        public QuestData(string id, string npcName, string questStory, Sprite image, InventoryType inventoryType, int[] rewards)
+        {
+            this.id = id;
+            this.npcName = npcName;
+            this.questStory = questStory;
+            this.inventoryType = inventoryType;
+            this.rewards = rewards;
+            this.image = image;
         }
     }
     public class ShopData
@@ -78,6 +98,36 @@ public class InventoryPopup : Popup
             newCell.Init(shopDatas[i]);
             newCell.gameObject.SetActive(true);
             cellList.Add(newCell.gameObject);
+        }
+    }
+
+    public void Init(QuestData[] questDatas)
+    {
+        foreach (var cell in cellList)
+        {
+            Destroy(cell);
+        }
+        cellList = new List<GameObject>();
+        for (int i = 0; i < questDatas.Length; i++)
+        {
+            var newCell = Instantiate(cell, Vector2.zero, Quaternion.identity, content.transform).GetComponent<QuestCell>();
+            newCell.Init(questDatas[i], QuestRemoveAndUpdateCellIndex);
+            newCell.gameObject.SetActive(true);
+            cellList.Add(newCell.gameObject);
+        }
+        UpdateQuestCellIndex();
+    }
+
+    public void QuestRemoveAndUpdateCellIndex(int cellIndex)
+    {
+        cellList.RemoveAt(cellIndex);
+        UpdateQuestCellIndex();
+    }
+    public void UpdateQuestCellIndex()
+    {
+        for (int i = 0; i < cellList.Count; i++)
+        {
+            cellList[i].GetComponent<QuestCell>().SetCellIndex(i);
         }
     }
 

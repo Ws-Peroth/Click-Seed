@@ -6,6 +6,7 @@ using UnityEngine;
 
 #region DATA_DEFINED
 
+
 [Serializable]
 public class BuffData
 {
@@ -68,16 +69,18 @@ public class ProductData
 [Serializable]
 public class QuestData
 {
-    public string npcId;
-    public string npcName;
     public string questId;
-    public int questReward;
+    public string npcName;
+    public string questStory;
+    public string plantId;
+    public int[] questReward;
 
-    public QuestData(string npcId, string npcName, string questId, int questReward)
+    public QuestData(string questId, string npcName, string questStory, string plantId, int[] questReward)
     {
-        this.npcId = npcId;
-        this.npcName = npcName;
         this.questId = questId;
+        this.npcName = npcName;
+        this.questStory = questStory;
+        this.plantId = plantId;
         this.questReward = questReward;
     }
 }
@@ -93,6 +96,7 @@ public class JsonData
     public List<ProductData> elixerShop;
     public List<DefaultData> plant;
     public List<QuestData> quest;
+    public List<QuestData> questSettingData;
     public List<string> shelf;
     public DefaultData growing;
     public List<BuffData> buffs;
@@ -108,6 +112,7 @@ public class JsonData
         List<DefaultData> plant,
         DefaultData growing,
         List<QuestData> quest, 
+        List<QuestData> questSettingData, 
         List<string> shelf, 
         List<BuffData> buffs,
         List<BuffData> buffSettingData)
@@ -121,6 +126,7 @@ public class JsonData
         this.plant = plant;
         this.growing = growing;
         this.quest = quest;
+        this.questSettingData = questSettingData;
         this.shelf = shelf;
         this.buffs = buffs;
         this.buffSettingData = buffSettingData;
@@ -256,7 +262,19 @@ public class DataManager : Singleton<DataManager>
             };
             // plantID, plantName, TotalClickCount
             var growing = DefaultData.Dummy();
-            var quest = new List<QuestData> {
+            var questSettingData = new List<QuestData> {
+                 new QuestData("quest_01", "Npc Name", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
+            };
+            var quest = new List<QuestData>
+            {
+                new QuestData("quest_01", "Npc Name1", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
+                new QuestData("quest_02", "Npc Name2", "Quest Story ~~~", "planticon2", new int[]{ 10, 0 }),
+                new QuestData("quest_03", "Npc Name3", "Quest Story ~~~", "planticon3", new int[]{ 0, 4999 }),
+                new QuestData("quest_04", "Npc Name4", "Quest Story ~~~", "planticon4", new int[]{ 9999, 9999 }),
+                new QuestData("quest_01", "Npc Name1", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
+                new QuestData("quest_03", "Npc Name3", "Quest Story ~~~", "planticon3", new int[]{ 0, 4999 }),
+                new QuestData("quest_02", "Npc Name2", "Quest Story ~~~", "planticon2", new int[]{ 10, 0 }),
+                new QuestData("quest_04", "Npc Name4", "Quest Story ~~~", "planticon4", new int[]{ 9999, 9999 }),
             };
             var shelf = new List<string>() {
             };
@@ -269,13 +287,6 @@ public class DataManager : Singleton<DataManager>
             };
             var buffSettingData = new List<BuffData>()
             {
-                /*
-                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 5 * 60),
-                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 10 * 60),
-                new BuffData("Elixir3", BuffType.AutoClick, 5, 3 * 60),
-                new BuffData("Elixir4", BuffType.AutoClick, 10, 5 * 60)
-                */
-
                 new BuffData("Elixir1", BuffType.AdditionalClick, 5, 1 * 60),
                 new BuffData("Elixir2", BuffType.AdditionalClick, 10, 2 * 60),
                 new BuffData("Elixir3", BuffType.AutoClick, 5, 1 * 60),
@@ -289,7 +300,8 @@ public class DataManager : Singleton<DataManager>
                 shopList:   shopList,
                 plant:      plant,
                 growing:    growing,
-                quest:      quest,
+                quest: quest,
+                questSettingData: questSettingData,
                 shelf:      shelf,
                 seedShop:   seedShop,
                 elixerShop: elixerShop,
@@ -444,11 +456,9 @@ public class DataManager : Singleton<DataManager>
             Debug.LogError($"{DataType.Currency}의 개수는 0 미만이 될 수 없습니다.");
             return;
         }
+        var result = GameManager.CalcTotalCurrencyToCurrency(totalCurrency);
 
-        int setCrystal = (int)(totalCurrency / FragmentToCrystalValue);
-        int setFragment = (int)(totalCurrency % FragmentToCrystalValue);
-
-        SetCurrencyCount(setCrystal, setFragment);
+        SetCurrencyCount(result[0], result[1]);
     }
 
     public void SetGrowingCount(int clickCount)

@@ -302,10 +302,9 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
 
             InventoryPopup.ShopData product = param[0] as InventoryPopup.ShopData;
             var price = product.price;
-            var totalPrice = (ulong)(price[0] * DataManager.FragmentToCrystalValue + price[1]);
             var amount = DataManager.Instance.GetMstData().currency;
-            var totalAmount = (ulong)amount[0].count * DataManager.FragmentToCrystalValue + (ulong)amount[1].count;
-
+            var totalPrice = GameManager.CalcTotalCurrency(price[0], price[1]);
+            var totalAmount =  GameManager.CalcTotalCurrency(amount[0].count, amount[1].count);
             confirmPopup.gameObject.SetActive(true);
             if (totalAmount < totalPrice)
             {
@@ -348,7 +347,6 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             var product = param[0] as InventoryPopup.InventoryData;
             var need = product.count;
             int havingCount = 0;
-
             if (keyType == "Elixir")
             {
                 foreach (var item in DataManager.Instance.GetMstData().elixer)
@@ -356,6 +354,18 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                     if(item.id == name)
                     {
                         havingCount = item.count;
+                        var buffTimeCount = DataManager.Instance.GetBuffData(item.id).leftBuffSec;
+                        if(buffTimeCount > 0)
+                        {
+                            confirmPopup.gameObject.SetActive(true);
+                            confirmPopup.Init(
+                                "Confirm", $"Cannot use {product.name} because {product.name} is already activated",
+                                () => { }, () => { },
+                                true, false
+                            );
+                            return;
+                        }
+                        break;
                     }
                 }
                 Debug.Log($"Use Elixir {product.name}");
@@ -380,6 +390,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
                     if (item.id == name)
                     {
                         havingCount = item.count;
+                        break;
                     }
                 }
                 Debug.Log($"Plant Seed {product.name}");
@@ -446,19 +457,7 @@ public class MainScene : MonoBehaviour, IGlobalEventReceiver
             {
                 // Use Buff Item
                 Debug.Log($"{product.name}을(를) 사용하였습니다");
-
-                // if: product.name is On
-                if (GameManager.Instance.UseElixir(product.id) == false)
-                {
-                    // show ErrorPopup
-                    confirmPopup.gameObject.SetActive(true);
-                    confirmPopup.Init(
-                        "Confirm", $"Cannot use {product.name} because {product.name} is already activated",
-                        () => { }, () => { },
-                        true, false
-                    );
-                    return;
-                }
+                GameManager.Instance.UseElixir(product.id);
                 confirmPopup.gameObject.SetActive(false);
                 popup.gameObject.SetActive(false);
             }

@@ -121,6 +121,16 @@ public class GameManager : Singleton<GameManager>
         SceneManagerEx.Instance.LoadScene((SceneManagerEx.Scenes)1);
     }
 
+    public static ulong CalcTotalCurrency(int crystal, int fragment)
+    {
+        return (ulong)crystal * DataManager.FragmentToCrystalValue + (ulong)fragment;
+    }
+    public static int[] CalcTotalCurrencyToCurrency(ulong totalCurrency)
+    {
+        int crystal = (int)(totalCurrency / DataManager.FragmentToCrystalValue);
+        int fragment = (int)(totalCurrency % DataManager.FragmentToCrystalValue);
+        return new int[] { crystal, fragment };
+    }
 
     public bool BuyItem(DataManager.DataType type, string id, string keyType)
     {
@@ -135,8 +145,8 @@ public class GameManager : Singleton<GameManager>
 
         var havingCrystal = DataManager.Instance.GetDefaultData(DataManager.DataType.Currency, "currency");
         var havingFragment = DataManager.Instance.GetDefaultData(DataManager.DataType.Currency, "currency2");
-        ulong totalBuyPrice = (ulong)buyData.prices[0] * DataManager.FragmentToCrystalValue + (ulong)buyData.prices[1];
-        ulong havingCurrency = (ulong)havingCrystal.count * DataManager.FragmentToCrystalValue + (ulong)havingFragment.count;
+        ulong totalBuyPrice = CalcTotalCurrency(buyData.prices[0], buyData.prices[1]);
+        ulong havingCurrency = CalcTotalCurrency(havingCrystal.count, havingFragment.count);
 
         if(totalBuyPrice > havingCurrency)
         {
@@ -144,9 +154,8 @@ public class GameManager : Singleton<GameManager>
             return false;
         }
         ulong resultCurrency = havingCurrency - totalBuyPrice;
-        int setCrystal = (int)resultCurrency / DataManager.FragmentToCrystalValue;
-        int setFragment = (int)resultCurrency % DataManager.FragmentToCrystalValue;
-        DataManager.Instance.SetCurrencyCount(setCrystal, setFragment);
+        var calcCurrency = CalcTotalCurrencyToCurrency(resultCurrency);
+        DataManager.Instance.SetCurrencyCount(calcCurrency[0], calcCurrency[1]);
 
         if (keyType == "Seed")
         {
@@ -234,6 +243,45 @@ public class GameManager : Singleton<GameManager>
         DataManager.Instance.SetBuffTime(id, time);
         DataManager.Instance.ChangeElixirCount(id, -1);
         DataManager.Instance.SaveMstData();
+        return true;
+    }
+
+    public void CancelQuest(int index)
+    {
+        // 퀘스트 삭제
+        DataManager.Instance.GetMstData().quest.RemoveAt(index);
+
+        // 수정된 데이터 저장
+        DataManager.Instance.SaveMstData();
+
+        // 퀘스트 추가 생성 로직 on 정도?
+    }
+    public bool ClearQuest(int index)
+    {
+        var questInfo = DataManager.Instance.GetMstData().quest[index];
+        var plantId = questInfo.plantId.Replace("planticon", "plant");
+        if (DataManager.Instance.GetMstData().shelf.Contains(plantId) == false)
+        {
+            Debug.Log($"퀘스트 ID: {questInfo.questId} 에 제출할 식물 ({plantId})가 없습니다");
+            return false;
+        }
+
+        // 퀘스트 클리어 보상
+        var currency = DataManager.Instance.GetMstData().currency.Select((v) => v.count).ToList();
+        var totalReward = CalcTotalCurrency(questInfo.questReward[0], questInfo.questReward[1]);
+        var totalCurrency = CalcTotalCurrency(currency[0], currency[1]);
+        var result = CalcTotalCurrencyToCurrency(totalCurrency + totalReward);
+        DataManager.Instance.SetCurrencyCount(result[0], result[1]);
+
+        // 퀘스트 지급 plant 제거
+        DataManager.Instance.GetMstData().shelf.Remove(plantId);
+
+        // 퀘스트 삭제
+        DataManager.Instance.GetMstData().quest.RemoveAt(index);
+
+        // 수정된 데이터 저장
+        DataManager.Instance.SaveMstData();
+
         return true;
     }
 
