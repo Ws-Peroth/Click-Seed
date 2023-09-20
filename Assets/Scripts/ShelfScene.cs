@@ -61,21 +61,29 @@ public class ShelfScene : MonoBehaviour, IGlobalEventReceiver
     {
         if(EventId == "Update")
         {
-            // name == "Shelf"
-            InitShelf();
+            if(name == "Shelf")
+            {
+                InitShelf();
+            }
+            if(name == "Quest")
+            {
+                InitQuestPopup();
+            }
         }
         if(EventId == "Select")
         {
-            // name = "QuestFailure"
-            var product = param[0] as InventoryPopup.QuestData;
-            confirmPopup.gameObject.SetActive(true);
-            // 구매불가 팝업
-            confirmPopup.Init(
-                "Confirm", $"Not enough plant to submit in quest",
-                () => { }, () => { },
-                true, false
-            );
-            return;
+            if (name == "QuestFailure")
+            {
+                var product = param[0] as InventoryPopup.QuestData;
+                confirmPopup.gameObject.SetActive(true);
+                // 구매불가 팝업
+                confirmPopup.Init(
+                    "Confirm", $"Not enough plant to submit in quest",
+                    () => { }, () => { },
+                    true, false
+                );
+                return;
+            }
         }
     }
     private void OnEnable()
@@ -97,6 +105,36 @@ public class ShelfScene : MonoBehaviour, IGlobalEventReceiver
         }
     }
 
+    public void InitQuestPopup()
+    {
+        Debug.Log("Open Quest");
+        popup.titleText.text = "Quest";
+
+        var inventoryData = new List<InventoryPopup.QuestData>();
+        var questData = DataManager.Instance.GetMstData().quest;
+        if (questData == null)
+        {
+            Debug.LogError("questData is null");
+        }
+        else if (questData.Count == 0)
+        {
+            Debug.LogError("questData Count is 0");
+        }
+        else
+        {
+            Debug.Log($"questData Count is {questData.Count}");
+        }
+        for (int i = 0; i < DataManager.Instance.GetMstData().quest.Count; i++)
+        {
+            var data = DataManager.Instance.GetMstData().quest[i];
+            var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.plantId).First();
+            inventoryData.Add(
+                new InventoryPopup.QuestData(data.questId, data.npcName, data.questStory, sprite, InventoryPopup.InventoryType.Quest, data.questReward)
+            ); ;
+        }
+        popup.Init(inventoryData.ToArray());
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -109,32 +147,7 @@ public class ShelfScene : MonoBehaviour, IGlobalEventReceiver
 
         questButton.onClick.AddListener(() =>
         {
-            Debug.Log("Open Quest");
-            popup.titleText.text = "Quest";
-
-            var inventoryData = new List<InventoryPopup.QuestData>();
-            var questData = DataManager.Instance.GetMstData().quest;
-            if(questData == null)
-            {
-                Debug.LogError("questData is null");
-            }
-            else if (questData.Count == 0)
-            {
-                Debug.LogError("questData Count is 0");
-            }
-            else
-            {
-                Debug.Log($"questData Count is {questData.Count}");
-            }
-            for (int i = 0; i < DataManager.Instance.GetMstData().quest.Count; i++)
-            {
-                var data = DataManager.Instance.GetMstData().quest[i];
-                var sprite = AssetDownloadManager.Instance.GetAssetsWithPath<Sprite>(data.plantId).First();
-                inventoryData.Add(
-                    new InventoryPopup.QuestData(data.questId, data.npcName, data.questStory, sprite, InventoryPopup.InventoryType.Quest, data.questReward)
-                ); ;
-            }
-            popup.Init(inventoryData.ToArray());
+            InitQuestPopup();
             popup.gameObject.SetActive(true);
         });
     }

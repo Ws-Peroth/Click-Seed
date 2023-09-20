@@ -285,8 +285,28 @@ public class GameManager : Singleton<GameManager>
         return true;
     }
 
+    IEnumerator UpdateQuest()
+    {
+        while (true)
+        {
+            if(DataManager.Instance.GetMstData().quest.Count < 5)
+            {
+                yield return new WaitForSeconds(5);
+                Debug.Log("Add Quest");
+                var random = UnityEngine.Random.Range(0, DataManager.Instance.GetMstData().questSettingData.Count);
+                var data = DataManager.Instance.GetMstData().questSettingData[random];
+                DataManager.Instance.GetMstData().quest.Add(new QuestData(data.questId, data.npcName, data.questStory, data.plantId, data.questReward));
+                DataManager.Instance.SaveMstData();
+
+                GlobalEventController.Instance.SendEvent("Update", "Quest");
+            }
+            yield return null;
+        }
+    }
+
     private void Start()
     {
         StartCoroutine(UpdateBuffTime());
+        StartCoroutine(UpdateQuest());
     }
 }
