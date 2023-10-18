@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class GameManager : Singleton<GameManager>
 {
+    public const int QUEST_COOLDOWN_TIME = 60;
+
     // 서버에서의 로직을 처리하도록 하고 싶은데...
     // [DataManager <--> GameManager] <===> Client Scripts
 
@@ -291,7 +293,7 @@ public class GameManager : Singleton<GameManager>
         {
             if(DataManager.Instance.GetMstData().quest.Count < 5)
             {
-                yield return new WaitForSeconds(5);
+                yield return new WaitForSeconds(QUEST_COOLDOWN_TIME);
                 Debug.Log("Add Quest");
                 var random = UnityEngine.Random.Range(0, DataManager.Instance.GetMstData().questSettingData.Count);
                 var data = DataManager.Instance.GetMstData().questSettingData[random];

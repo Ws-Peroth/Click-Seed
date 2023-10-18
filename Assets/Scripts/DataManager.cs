@@ -136,10 +136,6 @@ public class JsonData
 
 public class DataManager : Singleton<DataManager>
 {
-    // ������ DB�� RPC������ ���� ����
-    // �����͸� Json���� �����ϸ�, �����ִ� �����͸� �ν��Ͻ��� ���� �ش�
-
-
     private JsonData MstData;
     public JsonData GetMstData() { return MstData; }
     public const int FragmentToCrystalValue = 5000;
@@ -178,14 +174,6 @@ public class DataManager : Singleton<DataManager>
         Crystal,
         CrystalFragment
     }
-    public readonly int[] PotGrowupCount = new int[]
-    {
-        0,
-        10,
-        20,
-        30,
-        40
-    };
 
     public void Start()
     {
@@ -199,8 +187,8 @@ public class DataManager : Singleton<DataManager>
             MstData = new JsonData();
             var currency = new List<DefaultData> {
                 // currencyID, currencyName, havingCount
-                new DefaultData ("currency", "Crescent", 1000),
-                new DefaultData ("currency2", "Lunar Shard ", 10),
+                new DefaultData ("currency", "Crescent", 0),
+                new DefaultData ("currency2", "Lunar Shard ", 0),
             };
             var elixer = new List<DefaultData> {
                 // elixerID, elixerName, havingCount
@@ -211,16 +199,16 @@ public class DataManager : Singleton<DataManager>
             };
             var inventory = new List<DefaultData> {
                 // seedID, seedName, havingCount
+                new DefaultData ("Seed6", "Sunflower Seed", 0),
+                new DefaultData ("Seed10", "Cactus Seed", 0),
                 new DefaultData ("Seed1", "Slime Seed", 0),
-                new DefaultData ("Seed2", "Crystal Seed", 0),
                 new DefaultData ("Seed3", "Floresent Seed", 0),
                 new DefaultData ("Seed4", "Mushroom Seed", 0),
                 new DefaultData ("Seed5", "Tentaclel Seed", 0),
-                new DefaultData ("Seed6", "Sunflower Seed", 0),
-                new DefaultData ("Seed7", "Seed on Fire", 0),
                 new DefaultData ("Seed8", "Carnivorous Seed", 0),
                 new DefaultData ("Seed9", "Lettuce Flower Seed", 0),
-                new DefaultData ("Seed10", "Cactus Seed", 0),
+                new DefaultData ("Seed2", "Crystal Seed", 0),
+                new DefaultData ("Seed7", "Seed on Fire", 0),
             }; 
             var shopList = new List<DefaultData> {
                 // seedID, seedName, --
@@ -229,29 +217,29 @@ public class DataManager : Singleton<DataManager>
             };
             var plant = new List<DefaultData> {
                 // plantID, plantName, TotalClickCount
-                new DefaultData ("plant1", "Slime Seed", 50),
-                new DefaultData ("plant2", "Crystal Seed", 60),
-                new DefaultData ("plant3", "Floresent Seed", 70),
-                new DefaultData ("plant4", "Mushroom Seed", 80),
-                new DefaultData ("plant5", "Tentaclel Seed", 90),
-                new DefaultData ("plant6", "Sunflower Seed", 100),
-                new DefaultData ("plant7", "Seed on Fire", 120),
-                new DefaultData ("plant8", "Carnivorous Seed", 140),
-                new DefaultData ("plant9", "Lettuce Flower Seed", 200),
-                new DefaultData ("plant10", "Cactus Seed", 250),
+                new DefaultData ("plant6", "Sunflower Seed", 500),
+                new DefaultData ("plant10", "Cactus Seed", 1000),
+                new DefaultData ("plant1", "Slime Seed", 2000),
+                new DefaultData ("plant3", "Floresent Seed", 2500),
+                new DefaultData ("plant4", "Mushroom Seed", 3000),
+                new DefaultData ("plant5", "Tentaclel Seed", 3500),
+                new DefaultData ("plant8", "Carnivorous Seed", 5000),
+                new DefaultData ("plant9", "Lettuce Flower Seed", 5000),
+                new DefaultData ("plant2", "Crystal Seed", 7000),
+                new DefaultData ("plant7", "Seed on Fire", 10000),
             };
             var seedShop = new List<ProductData> {
                 // seedID, seedName, price[currency1, currency2]
+                new ProductData ("Seed6", "Sunflower Seed",     new int[]{ 0, 0}),
+                new ProductData ("Seed10", "Cactus Seed",       new int[]{ 0, 30}),
                 new ProductData ("Seed1", "Slime Seed",         new int[]{ 0, 50}),
-                new ProductData ("Seed2", "Crystal Seed",       new int[]{ 2, 0}),
                 new ProductData ("Seed3", "Floresent Seed",     new int[]{ 0, 100}),
                 new ProductData ("Seed4", "Mushroom Seed",      new int[]{ 0, 150}),
                 new ProductData ("Seed5", "Tentaclel Seed",     new int[]{ 0, 200}),
-                new ProductData ("Seed6", "Sunflower Seed",     new int[]{ 0, 10}),
-                new ProductData ("Seed7", "Seed on Fire",       new int[]{ 3, 0}),
                 new ProductData ("Seed8", "Carnivorous Seed",   new int[]{ 0, 300}),
                 new ProductData ("Seed9", "Lettuce Flower Seed",new int[]{ 1, 0}),
-                new ProductData ("Seed10", "Cactus Seed",       new int[]{ 0, 30}),
+                new ProductData ("Seed2", "Crystal Seed",       new int[]{ 2, 0}),
+                new ProductData ("Seed7", "Seed on Fire",       new int[]{ 3, 0}),
             };
             var elixerShop = new List<ProductData> {
                 // elixerID, elixerName, price[currency1, currency2]
@@ -263,18 +251,36 @@ public class DataManager : Singleton<DataManager>
             // plantID, plantName, TotalClickCount
             var growing = DefaultData.Dummy();
             var questSettingData = new List<QuestData> {
-                 new QuestData("quest_01", "Npc Name", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
+                 new QuestData("quest_01", "Wealthy Man", "I seek a plant with florescent blossoms that can create a dazzling display of colors in my conservatory, enchanting all who enter. would I be able to purchace that radiant flower?", "planticon3", new int[]{ 0, 700 }),
+                 new QuestData("quest_02", "Wealthy Man", "I've heard rumors of a mushroom plant with unique properties, capable of creating an extraordinary visual experience. Is such a marvel available in your plant collection?", "planticon4", new int[]{ 0, 1000 }),
+                 new QuestData("quest_03", "Wealthy Man", "I desire a sunflower plant of unparalleled size and vibrancy, one that can compete with the grandeur of my extensive gardens. Can you provide me with a sunflower that will leave onlookers in awe?", "planticon6", new int[]{ 0, 100 }),
+                 new QuestData("quest_04", "Wealthy Man", "I'm looking for a plant that exudes opulence and elegance, something that would make a striking addition to my mansion's grand entrance. Could i be able to buy a crystal plant?", "planticon2", new int[]{ 5, 0 }),
+                 new QuestData("quest_05", "Little boy", "My mother is suffering from a persistent cough. Is there a plant that can help alleviate her symptoms and bring her some relief?", "planticon1", new int[]{ 0, 500 }),
+                 new QuestData("quest_06", "Little boy", "I'm searching for a plant with soothing properties to create a calming tea for my sick mother. Do you have anything that can provide comfort and healing?", "planticon6", new int[]{ 0, 100 }),
+                 new QuestData("quest_07", "Little boy", "I've heard tales of a mystical plant known for its ability to boost the immune system. Can you recommend something that can help strengthen my mother's health?", "planticon7", new int[]{ 10, 0 }),
+                 new QuestData("quest_08", "Dwarf", "I'm in search of a robust plant that can withstand the harsh conditions of the underground tunnels. Do you have anything resilient and low-maintenance?", "planticon5", new int[]{ 0, 2000 }),
+                 new QuestData("quest_09", "Dwarf", "I've heard tales of a plant that can illuminate dark caverns with its radiant glow. Is there such a luminescent specimen available here?", "planticon7", new int[]{ 10, 0 }),
+                 new QuestData("quest_10", "Dwarf", "Is there a plant with spiky, protective thorns that can ward off intruders from our mining encampments? I need something that screams \"keep out!\"", "planticon10", new int[]{ 0, 300 }),
+                 new QuestData("quest_11", "Dwarf", "I seek a plant that can produce nourishing seeds or fruits, sustaining our mining community during long expeditions. Is there a plant that fits this description?", "planticon5", new int[]{ 0, 2000 }),
+                 new QuestData("quest_12", "Dwarf", "I've heard rumors of a carnivorous plant that can defend our tunnels from pests and unwanted creatures. Can you guide me to such a fierce and voracious botanical marvel?", "planticon8", new int[]{ 0, 2500 }),
+                 new QuestData("quest_13", "Elf", "I've heard tales of a plant that possesses healing properties, able to mend wounds swiftly. Can you guide me to such a miraculous herb?", "planticon1", new int[]{ 0, 500 }),
+                 new QuestData("quest_14", "Elf", "I long for a plant with vibrant colors and delicate petals that can be used for crafting enchanting elixirs. Can you recommend one that fits the bill?", "planticon9", new int[]{ 3, 0 }),
+                 new QuestData("quest_15", "Elf", "I'm on a quest for a rare plant said to possess ancient wisdom and the ability to communicate with nature. Is such a mystical specimen available here?", "planticon4", new int[]{ 0, 1000 }),
+                 new QuestData("quest_16", "Elf", "Excuse me, I'm looking for a unique plant to enhance my garden. Do you have any recommendations?", "planticon2", new int[]{ 5, 0 }),
+                 new QuestData("quest_17", "Elf", "Is the slime plant available for purchase? I'm captivated by its enchanting properties and would love to add it to my garden.", "planticon1", new int[]{ 0, 100 }),
+                 new QuestData("quest_18", "Wizard", "I'm in need of a plant that can enhance the potency of my spells. Is there a botanical marvel that can amplify magical energies?", "planticon1", new int[]{ 0, 100 }),
+                 new QuestData("quest_19", "Wizard", "I'm searching for a plant with mystical properties that can aid in divination and scrying. Do you have something that can heighten my powers of foresight?", "planticon4", new int[]{ 0, 1000 }),
+                 new QuestData("quest_20", "Wizard", "Is there a plant with luminescent leaves or petals that can serve as a natural source of illumination for my enchanted laboratory?", "planticon7", new int[]{ 10, 0 }),
+                 new QuestData("quest_21", "Wizard", "I'm in search of a plant that can create a protective barrier against dark forces and unwanted magical influences. Is there a plant that can act as a guardian for my spellcasting sanctum?", "planticon10", new int[]{ 0, 300 }),
+                 new QuestData("quest_22", "Wizard", "I seek a plant with magical tentacles that can assist me in potion brewing, specifically for stirring and mixing ingredients with precision. Is there a plant that fits this description?", "planticon5", new int[]{ 0, 2000 }),
             };
             var quest = new List<QuestData>
             {
-                new QuestData("quest_01", "Npc Name1", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
-                new QuestData("quest_02", "Npc Name2", "Quest Story ~~~", "planticon2", new int[]{ 10, 0 }),
-                new QuestData("quest_03", "Npc Name3", "Quest Story ~~~", "planticon3", new int[]{ 0, 4999 }),
-                new QuestData("quest_04", "Npc Name4", "Quest Story ~~~", "planticon4", new int[]{ 9999, 9999 }),
-                new QuestData("quest_01", "Npc Name1", "Quest Story ~~~", "planticon1", new int[]{ 1, 10 }),
-                new QuestData("quest_03", "Npc Name3", "Quest Story ~~~", "planticon3", new int[]{ 0, 4999 }),
-                new QuestData("quest_02", "Npc Name2", "Quest Story ~~~", "planticon2", new int[]{ 10, 0 }),
-                new QuestData("quest_04", "Npc Name4", "Quest Story ~~~", "planticon4", new int[]{ 9999, 9999 }),
+                new QuestData("quest_03", "Wealthy Man", "I desire a sunflower plant of unparalleled size and vibrancy, one that can compete with the grandeur of my extensive gardens. Can you provide me with a sunflower that will leave onlookers in awe?", "planticon6", new int[]{ 0, 100 }),
+                new QuestData("quest_06", "Little boy", "I'm searching for a plant with soothing properties to create a calming tea for my sick mother. Do you have anything that can provide comfort and healing?", "planticon6", new int[]{ 0, 100 }),
+                new QuestData("quest_05", "Little boy", "My mother is suffering from a persistent cough. Is there a plant that can help alleviate her symptoms and bring her some relief?", "planticon1", new int[]{ 0, 500 }),
+                new QuestData("quest_17", "Elf", "Is the slime plant available for purchase? I'm captivated by its enchanting properties and would love to add it to my garden.", "planticon1", new int[]{ 0, 100 }),
+                new QuestData("quest_01", "Wealthy Man", "I seek a plant with florescent blossoms that can create a dazzling display of colors in my conservatory, enchanting all who enter. would I be able to purchace that radiant flower?", "planticon3", new int[]{ 0, 700 }),
             };
             var shelf = new List<string>() {
             };
@@ -287,11 +293,10 @@ public class DataManager : Singleton<DataManager>
             };
             var buffSettingData = new List<BuffData>()
             {
-                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 1 * 60),
-                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 2 * 60),
-                new BuffData("Elixir3", BuffType.AutoClick, 5, 1 * 60),
-                new BuffData("Elixir4", BuffType.AutoClick, 10, 2 * 60)
-                
+                new BuffData("Elixir1", BuffType.AdditionalClick, 5, 5 * 60),
+                new BuffData("Elixir2", BuffType.AdditionalClick, 10, 10 * 60),
+                new BuffData("Elixir3", BuffType.AutoClick, 5, 3 * 60),
+                new BuffData("Elixir4", BuffType.AutoClick, 10, 5 * 60)
             };
             MstData.Init(
                 currency:   currency,
@@ -319,7 +324,6 @@ public class DataManager : Singleton<DataManager>
     public void SaveMstData()
     {
         JsonManager.Instance.SaveJsonData(MstData, Path.Combine(Application.persistentDataPath, "mstData.json"));
-        // System.IO.File.WriteAllText(Path.Combine(Application.persistentDataPath, "file.txt"), jsonTextFile);
     }
 
     public BuffData GetBuffData(string id)
